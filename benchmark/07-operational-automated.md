@@ -14,19 +14,28 @@ and automated aggregation. Everything here is a mechanical, repeatable pipeline.
 5. **Assign.** One evaluator agent per game order; counterbalance A‑first/B‑first across the
    pool. Blind labels only.
 6. **Play & record.** Evaluator executes `03` session set per game using `01` prompt, emitting
-   `ops/evidence_schema.json`‑compatible JSON per game, then a pairwise verdict (both orderings).
-7. **Aggregate.** `python ops/aggregate_scores.py <evidence_dir>` computes per‑game OVERALL,
-   pillars, defect penalties, ceilings, pairwise/BT ranking, and bootstrap CIs.
-8. **Report.** Format per `05`; include confidence and limitations.
-9. **Archive.** Evidence bundle, report, frozen build hashes, prompt/rubric versions → store
-   for audit.
+   one `ops/evidence_schema.json` (v2)‑compatible record PER GAME (no pairwise content), then
+   one separate `pairwise_result.json` receipt after both orderings (contracts/
+   pairwise_result.schema.json).
+7. **Validate.** `python ops/validate_evidence.py <evidence_dir>` — drift‑guarded evidence
+   gate (criteria/ceilings pinned to `contracts/RUBRIC_v2.json`).
+8. **Aggregate.** `python ops/aggregate_scores.py <evidence_dir>` computes per‑game OVERALL,
+   pillars, defect penalties, ceilings, pairwise/BT ranking, and bootstrap CIs. All scoring
+   constants come from `contracts/RUBRIC_v2.json`.
+9. **Report.** Format per `05`; include confidence and limitations.
+10. **Archive.** Evidence bundle, report, frozen build hashes, prompt/rubric/contract versions
+    → store for audit.
+
+**Control‑plane guard (run after any rubric/ops change):**
+`python ops/consistency_check.py` + `python ../tests/run_all.py` — fails on any drift
+between contract JSON, aggregator, rubric doc, evidence schema, and this runbook.
 
 ## 7.2 Scoring pipeline (pure function)
 
 ```
 for each game:
     CATEGORY_c = mean(sub_scores_c) × 2                    # from evaluator sub-scores
-    OVERALL_raw = Σ WEIGHT_c × CATEGORY_c                   # weights T20 M18 G18 F14 V12 A10 X8
+    OVERALL_raw = Σ WEIGHT_c × CATEGORY_c                   # weights T16 M17 G17 F12 V20 A12 X6
     HARD_PENALTY = min(30, blockers×6 + criticals×4)
     OVERALL_adj = max(0, OVERALL_raw − HARD_PENALTY)
     OVERALL = min(OVERALL_adj, applicable CEIL)
@@ -46,8 +55,8 @@ outputs:
 - **Evidence gate:** skip/reject any sub‑score ≥3 with no evidence link.
 - **Confidence:** report CIs; label any pair with overlapping CIs as "not statistically
   separable."
-- **Quality gates per evaluator:** coverage completeness (S1–S8 per game), position‑consistency
-  sample, outlier review; drop evaluators below threshold.
+- **Quality gates per evaluator:** coverage completeness (S1–S9 incl. S4a/S4b per game),
+  position‑consistency sample, outlier review; drop evaluators below threshold.
 - **Reproducibility:** version everything (prompt, rubric, schema, aggregator, builds). Record
   seeds, hashes, timestamps.
 
@@ -64,5 +73,10 @@ When full scale is impossible, keep the **essential core** so results stay defen
 
 ## 7.5 Reference artifacts
 
-- `ops/evidence_schema.json` — machine‑readable evidence contract.
-- `ops/aggregate_scores.py` — aggregator: OVERALL, pillars, ceilings, BT + bootstrap CIs.
+- `contracts/RUBRIC_v2.json` — **canonical scoring contract** (weights/criteria/ceilings).
+- `contracts/pairwise_result.schema.json` — separate pairwise receipt schema.
+- `ops/evidence_schema.json` — machine‑readable per‑game evidence contract (v2, no pairwise).
+- `ops/aggregate_scores.py` — aggregator: OVERALL, pillars, ceilings, BT + bootstrap CIs
+  (reads the contract; `--contract PATH` to override).
+- `ops/validate_evidence.py` — dependency‑free evidence validator.
+- `ops/consistency_check.py` — drift gate between contract/aggregator/rubric/schema/docs.

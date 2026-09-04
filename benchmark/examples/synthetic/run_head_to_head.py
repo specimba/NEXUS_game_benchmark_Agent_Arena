@@ -33,15 +33,18 @@ def run(cmd: list[str], cwd: str) -> int:
 
 def main() -> None:
     print("#" * 66)
-    print("# ASHEN DESCENT — synthetic head-to-head demo")
+    print("# NEXUS Agent Arena — synthetic head-to-head demo")
     print("# (synthetic data; not a real evaluation)")
     print("#" * 66)
 
-    # 1. Per-game scores + Bradley-Terry ranking (aggregate_scores.py)
+    # 0. Evidence gate: every record must satisfy the v2 evidence contract
+    run(["../../ops/validate_evidence.py", "."], HERE)
+
+    # 1. Per-game scores + Bradley-Terry ranking (aggregate_scores.py, reads contract)
     run(["../../ops/aggregate_scores.py", ".", "--bt", "--pairs", "pairs.json",
          "--seed", "7", "--n-boot", "800"], HERE)
 
-    # 2. One-page decision block (decision_block.py)
+    # 2. One-page decision block (decision_block.py; also consumes pairwise_result.json)
     run(["../../ops/decision_block.py", ".", "--pairs", "h2h_pairs.json"], HERE)
 
 

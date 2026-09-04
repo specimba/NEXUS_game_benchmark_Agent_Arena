@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Ashen Descent Arena — decision block generator.
+NEXUS Agent Arena — decision block generator.
 
 Turns aggregated evidence into the concise one-page "decision" summary defined in
 benchmark/08-selection-and-final-decision.md: which game wins, on which pillars, with the
@@ -19,8 +19,10 @@ Usage:
         [--hard-margin 5.0] [--tie-margin 2.0]
 
 The evidence dir must contain evidence for exactly two games (Game A and Game B) for the
-head-to-head decision block. Pass --pairs with a head-to-head winner list to also report the
-pairwise signal (e.g. benchmark/examples/synthetic/pairs.json).
+head-to-head decision block. The pairwise signal comes from either --pairs with a
+head-to-head winner list (e.g. benchmark/examples/synthetic/h2h_pairs.json), or from
+standalone v2 pairwise receipts (pairwise_result*.json, contracts/pairwise_result.schema.json)
+found inside the evidence dir.
 
 Note: this is a reporting helper and contains NO scoring logic that ships with a game.
 """
@@ -46,31 +48,70 @@ def _has_ceiling(res: dict) -> bool:
     return len(res.get("ceilings_hit") or []) > 0
 
 
-def pairwise_signal(pairs_path: str | None) -> tuple[str, float, bool]:
-    """Return (winner_label|'tie'|'none', confidence, both_orderings_agree)."""
-    if not pairs_path:
-        return "none", 0.0, False
-    with open(pairs_path) as f:
-        rows = json.load(f)
+def _scan_pairwise_receipts(evidence_dir: str | None) -> list[dict]:
+    """Collect canonical v2 pairwise receipts (flat {pair_id, game_a, game_b, winner, ...})
+    from the evidence directory. Legacy combined-pair files are NOT double counted here —
+    their votes surface through load_evidence()/--pairs instead."""
+    receipts: list[dict] = []
+    if not evidence_dir:
+        return receipts
+    for fn in sorted(os.listdir(evidence_dir)):
+        if not fn.endswith(".json"):
+            continue
+        try:
+            with open(os.path.join(evidence_dir, fn)) as f:
+                obj = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            continue
+        if (isinstance(obj, dict) and obj.get("pair_id")
+                and isinstance(obj.get("game_a"), str)
+                and isinstance(obj.get("game_b"), str)
+                and obj.get("winner") in ("A", "B", "tie")):
+            receipts.append(obj)
+    return receipts
+
+
+def pairwise_signal(pairs_path: str | None, evidence_dir: str | None = None
+                    ) -> tuple[str, float, bool]:
+    """Return (winner_label|'tie'|'none', confidence, both_orderings_agree).
+
+    Votes come from --pairs rows ({a,b,winner}) and/or canonical v2 pairwise receipts
+    found in the evidence dir. A tie vote counts toward the tie bucket; the confidence is
+    the winning vote share."""
     a = b = tie = 0
-    for r in rows:
+    if pairs_path:
+        with open(pairs_path) as f:
+            rows = json.load(f)
+        for r in rows:
+            w = r.get("winner")
+            if w == r.get("a"):
+                a += 1
+            elif w == r.get("b"):
+                b += 1
+            elif w == "tie":
+                tie += 1
+    receipts = _scan_pairwise_receipts(evidence_dir)
+    receipt_agree = True
+    for r in receipts:
         w = r.get("winner")
-        if w == r.get("a"):
+        if w == r.get("game_a"):
             a += 1
-        elif w == r.get("b"):
+        elif w == r.get("game_b"):
             b += 1
         elif w == "tie":
             tie += 1
+        if r.get("both_orderings_agree") is False:
+            receipt_agree = False
     total = a + b + tie
     if total == 0:
         return "none", 0.0, False
     if a > b and a >= b + tie:
-        return "A", a / total, True
+        return "A", a / total, receipt_agree
     if b > a and b >= a + tie:
-        return "B", b / total, True
+        return "B", b / total, receipt_agree
     if a == b:
-        return "tie", max(a, b) / total if total else 0.0, True
-    return ("A" if a > b else "B"), max(a, b) / total, False
+        return "tie", max(a, b) / total if total else 0.0, receipt_agree
+    return ("A" if a > b else "B"), max(a, b) / total, receipt_agree
 
 
 def decide(results: dict, hard_margin: float, tie_margin: float, pw: tuple) -> dict:
@@ -194,7 +235,7 @@ def main() -> None:
     if set(results.keys()) != set(AB):
         sys.exit(f"[error] need evidence for both Game A and Game B; found {sorted(results.keys())}")
 
-    pw = pairwise_signal(args.pairs)
+    pw = pairwise_signal(args.pairs, args.evidence_dir)
     decision = decide(results, args.hard_margin, args.tie_margin, pw)
     print(format_block(results, decision, pw, args.hard_margin, raw))
 

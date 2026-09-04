@@ -1,0 +1,60 @@
+# NEXUS Agent Arena — benchmark control-plane CI
+#
+# INSTALL NOTE: GitHub refuses workflow-file pushes from automation tokens (no
+# `workflows` permission). To activate: copy this file to
+# .github/workflows/benchmark-ci.yml on the default branch (web UI is fine), then
+# require the `benchmark-ci` status check in branch rulesets. See repo-ops/README.md.
+#
+# Purpose: guard the executable scoring semantics against drift and keep the
+# demo bundle honest, on every push / pull request.
+#   * consistency gate    : contract <-> aggregator <-> rubric doc <-> schema <-> runbooks
+#   * regression suite    : consistency + evidence validation + demo byte-stability
+#                           + aggregator math + negative validator tests
+#   * evidence validator  : synthetic v2 bundle satisfies the evidence contract
+#
+# Usage with GitHub branch rulesets: enable "Require status checks to pass"
+# and add the check name `benchmark-ci`. The job is dependency-free
+# (Python 3.11 stdlib only), so it runs on the stock ubuntu runner.
+#
+# Run locally (any machine with python3):
+#   python3 benchmark/ops/consistency_check.py
+#   python3 benchmark/tests/run_all.py
+
+name: benchmark-ci
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  benchmark-ci:
+    name: benchmark-ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Compile all Python tooling
+        run: |
+          python -m py_compile \
+            benchmark/ops/aggregate_scores.py \
+            benchmark/ops/decision_block.py \
+            benchmark/ops/consistency_check.py \
+            benchmark/ops/validate_evidence.py \
+            benchmark/tests/run_all.py \
+            benchmark/examples/synthetic/run_head_to_head.py
+
+      - name: Control-plane consistency gate
+        run: python benchmark/ops/consistency_check.py
+
+      - name: Full regression suite (includes demo byte-stability + validator negatives)
+        run: python benchmark/tests/run_all.py
+
+      - name: Validate evidence contract on the synthetic v2 bundle
+        run: python benchmark/ops/validate_evidence.py benchmark/examples/synthetic

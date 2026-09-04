@@ -18,7 +18,7 @@ One short paragraph per created game: what kind of game it actually is (2D/3D/ex
 
 ## 2. Testing coverage
 
-Table of archetypes S1–S8 + S9 Creative Probe per game with: completed? / duration / objective met? / notes. Any archetype skipped → state why. Report PARTIAL-COVERAGE categories.
+Table of archetypes S1–S9 per game (S4 split into S4a runtime soak and S4b experience endurance per `03`) with: completed? / duration / objective met? / notes. Any archetype skipped → state why. Report PARTIAL-COVERAGE categories.
 
 Include automated checks: launch, no crash loop, responds to input, pause freeze, restart reset, persistence safe, no telemetry/embedded score, env consistency.
 
@@ -28,10 +28,10 @@ Include automated checks: launch, no crash loop, responds to input, pause freeze
 | Cat | Sub-scores (0–5) | Category (0–10) | Evidence summary (timestamp + observable) |
 |-----|------------------|-----------------|-------------------------------------------|
 | T Code Quality | T1..T7 | _ | e.g., cold launch ok, pooling observed, centralized config... |
-| M Mechanics & Craft | M1..M7 | _ | ... |
+| M Mechanics & Craft | M1..M8 | _ | ... |
 | G Gameplay & Human-Perceived | G1..G7 | _ | ... |
 | F Flow & Coherence | F1..F6 | _ | ... |
-| V Visual Ambition (heavily weighted) | V0..V8 | _ | Explicitly assess beyond simple box gradient enemies / flash template? |
+| V Visual Ambition (heavily weighted) | V0..V9 | _ | Explicitly assess beyond simple box gradient enemies / flash template? V9 = working-3D/heavy-tech bonus; N/A for deliberate polished 2D |
 | A Atmosphere & World Invention | A1..A6 | _ | ... |
 | X Accessibility | X1..X5 | _ | ... |
 **Game A:** OVERALL_raw · HARD_PENALTY · OVERALL_adj · ceilings · **OVERALL = __** · pillars (TECH/CODE_QUALITY/CREATIVE/VISUAL_AMBITION/GAMEPLAY/FLOW/HUMAN_JURY/DEFECT_SEVERITY)
@@ -85,4 +85,8 @@ Which created game would human jury choose and why. If close, state margin and w
 
 ## Automated attachment (machine-readable)
 
-Emit alongside report JSON matching ops/evidence_schema.json so aggregator can recompute scores independently. Includes category scores, sub-scores, defects, ceilings, coverage, pairwise verdict, meta (hardware, browser_matrix, evaluator, ordering, timestamps, agent time budgets).
+Emit alongside report:
+1. **One evidence record per game** matching `ops/evidence_schema.json` (v2) so the aggregator can recompute scores independently — category scores, sub-scores, defects, ceilings, coverage, meta (hardware, browser_matrix, evaluator, ordering, judge_family, rubric/prompt/contract version, contract_sha256, timestamps, agent time budgets). **No pairwise content inside game records.**
+2. **One `pairwise_result.json` receipt** per comparison matching `benchmark/contracts/pairwise_result.schema.json` — winner, confidence, both-orderings agreement, evidence hashes of the two frozen game records.
+
+Validate before archiving: `python benchmark/ops/validate_evidence.py <evidence_dir>`.

@@ -1,12 +1,220 @@
-{"game":"B",
- "sub_scores":{
-  "T":{"T1":4,"T2":3,"T3":3,"T4":2,"T5":3,"T6":2,"T7":3},
-  "M":{"M1":4,"M2":4,"M3":3,"M4":3,"M5":4,"M6":4},
-  "G":{"G1":3,"G2":4,"G3":3,"G4":3,"G5":3,"G6":3},
-  "F":{"F1":3,"F2":3,"F3":3,"F4":3,"F5":3,"F6":2},
-  "V":{"V0":5,"V1":5,"V2":4,"V3":4,"V4":5,"V5":4},
-  "A":{"A1":5,"A2":4,"A3":5,"A4":4,"A5":4},
-  "X":{"X1":4,"X2":4,"X3":4,"X4":4,"X5":4}},
- "defects":[{"severity":"Critical"}],
- "ceilings":["CEIL-1"],
- "coverage":{"T":"FULL","M":"FULL","G":"FULL","F":"FULL","V":"FULL","A":"FULL","X":"FULL"}}
+{
+ "game": "B",
+ "meta": {
+  "hardware": "profile P1 (8-core CPU, 16 GB RAM, integrated GPU, mid-2026)",
+  "browser_matrix": "Chrome 140 + Firefox 137 desktop; Safari 18 iOS viewport",
+  "evaluator": "ev-0413",
+  "ordering": "B-first",
+  "judge_family": "jury-alpha",
+  "rubric_version": "rubric-2.0",
+  "prompt_version": "BATTLE_PROMPT_v18",
+  "contract_version": "2.0.0",
+  "contract_sha256": "e1781e72a870b899fe76a4ba0e98384452f3de68ec7787077f1feba975195349",
+  "benchmark_run_id": "NEXUS-PC-101",
+  "build_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "start_ts": "2026-09-01T10:00:00Z",
+  "end_ts": "2026-09-01T14:30:00Z"
+ },
+ "sessions": {
+  "S1": {
+   "duration_seconds": 300,
+   "objective_met": true,
+   "notes": [
+    "cold launch ok"
+   ]
+  },
+  "S2": {
+   "duration_seconds": 180,
+   "objective_met": true,
+   "notes": [
+    "restart resets"
+   ]
+  },
+  "S3": {
+   "duration_seconds": 1800,
+   "objective_met": false,
+   "notes": [
+    "main-path soft-lock at ~21 min blocks run completion"
+   ]
+  },
+  "S4a": {
+   "duration_seconds": 1500,
+   "objective_met": false,
+   "notes": [
+    "soak aborted at 25 min after 3rd crash reproduction"
+   ],
+   "perf_samples": [
+    {
+     "at_min": 0,
+     "fps": 60,
+     "jank_pct": 1,
+     "memory_note": "baseline"
+    },
+    {
+     "at_min": 15,
+     "fps": 45,
+     "jank_pct": 18,
+     "memory_note": "growing jank"
+    }
+   ]
+  },
+  "S4b": {
+   "duration_seconds": 1200,
+   "objective_met": false,
+   "notes": [
+    "arc broken by critical soft-lock"
+   ]
+  },
+  "S5": {
+   "duration_seconds": 1200,
+   "objective_met": true,
+   "notes": [
+    "strong visual identity across environments"
+   ]
+  },
+  "S6": {
+   "duration_seconds": 900,
+   "objective_met": true,
+   "notes": [
+    "boundary checks fine where reachable"
+   ]
+  },
+  "S7": {
+   "duration_seconds": 600,
+   "objective_met": true,
+   "notes": [
+    "keyboard ok; reduced-motion partial"
+   ]
+  },
+  "S8": {
+   "duration_seconds": 600,
+   "objective_met": false,
+   "notes": [
+    "second run also hits soft-lock"
+   ]
+  },
+  "S9": {
+   "duration_seconds": 600,
+   "objective_met": true,
+   "notes": [
+    "creative probe: genuinely surprising visual moment"
+   ]
+  }
+ },
+ "sub_scores": {
+  "T": {
+   "T1": 4,
+   "T2": 3,
+   "T3": 3,
+   "T4": 2,
+   "T5": 3,
+   "T6": 2,
+   "T7": 3
+  },
+  "M": {
+   "M1": 4,
+   "M2": 4,
+   "M3": 3,
+   "M4": 3,
+   "M5": 4,
+   "M6": 4,
+   "M7": 3,
+   "M8": 2
+  },
+  "G": {
+   "G1": 3,
+   "G2": 4,
+   "G3": 3,
+   "G4": 3,
+   "G5": 3,
+   "G6": 3,
+   "G7": 2
+  },
+  "F": {
+   "F1": 3,
+   "F2": 3,
+   "F3": 3,
+   "F4": 3,
+   "F5": 3,
+   "F6": 2
+  },
+  "V": {
+   "V0": 5,
+   "V1": 5,
+   "V2": 4,
+   "V3": 4,
+   "V4": 5,
+   "V5": 4,
+   "V6": 2,
+   "V7": 3,
+   "V8": 5,
+   "V9": 3
+  },
+  "A": {
+   "A1": 5,
+   "A2": 4,
+   "A3": 5,
+   "A4": 4,
+   "A5": 4,
+   "A6": 5
+  },
+  "X": {
+   "X1": 4,
+   "X2": 3,
+   "X3": 4,
+   "X4": 4,
+   "X5": 4
+  }
+ },
+ "not_applicable": {},
+ "evidence": {
+  "V0": [
+   "[S5] strong authored visual identity, richer than A on raw originality"
+  ],
+  "V8": [
+   "[S9] surprising inversion beat; hurts flow at one point"
+  ],
+  "T2": [
+   "[S4a] crash reproduced 3x in 25 minutes"
+  ]
+ },
+ "defects": [
+  {
+   "id": "B-D1",
+   "title": "main-path soft-lock at transition 21 min",
+   "severity": "Critical",
+   "class": "Runtime",
+   "reproduction": [
+    "repro steps in session notes"
+   ],
+   "blocks_progress": true,
+   "recoverable": "reload",
+   "score_channel": "HARD_PENALTY",
+   "reproductions_confirmed": 1,
+   "immersion_damage": "low"
+  }
+ ],
+ "ceilings": [
+  "CEIL-1"
+ ],
+ "coverage": {
+  "T": "FULL",
+  "M": "FULL",
+  "G": "FULL",
+  "F": "FULL",
+  "V": "FULL",
+  "A": "FULL",
+  "X": "FULL"
+ },
+ "process": {
+  "time_to_first_playable_seconds": 1200,
+  "tests_run": 5,
+  "defects_self_detected": 1,
+  "defects_repaired": 1,
+  "regressions_introduced": 2,
+  "regressions_repaired": 0,
+  "wall_seconds": 14400,
+  "tool_calls": 180,
+  "iteration_count": 5
+ }
+}

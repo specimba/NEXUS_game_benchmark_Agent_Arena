@@ -18,11 +18,20 @@ Play with explicit goal of completing run / reaching climax / seeing variety. Ev
 
 Must complete at least one S3 per game to be eligible to score flow/engagement and depth at medium/high.
 
-## S4 Long (60 min) — continuous play NO restarts
+## S4a Runtime soak (60 min where feasible) — technical only, NO engagement scoring
 
-Sample performance at 0,15,30,45,60 min: FPS, jank %, memory note, particle count handling, input responsiveness. Where late-session bugs, memory growth, state corruption, engagement collapse surface. Reveals code quality: pooling, capping, delta-time, DPR handling.
+Continuous session that samples performance at 0,15,30,45,60 min: FPS, jank %, memory note, particle count handling, input responsiveness. Purpose: surface late-session bugs, memory growth, state corruption, leaks — code-quality signals (pooling, capping, delta-time, DPR handling). **Technical channel only.** This session does not require the player to be engaged; a deliberately short game may be soaked through idle/menu/repeat loops. Never use S4a findings to penalize designed content duration.
 
-Mandatory for any FLOW score above low band. If agent stopped at first prototype, S4 will surface thinness, repetition, padding.
+## S4b Experience endurance — intended arc + repeats
+
+Play the **complete intended arc** (however long it is), then 2–3 further runs / alternate paths where the design offers them.
+
+- 12-minute designed game → full run, then 2–3 repeated/alternate runs = S4b complete. No 60-minute content requirement.
+- Long / endless game (roguelike, campaign, endless loop) → up to 60 minutes of natural play fulfills S4b; its perf samples count for S4a.
+
+This split separates **runtime longevity** (S4a) from **designed content duration / engagement endurance** (S4b) and removes the old bias that forced every game to provide 60 minutes of content (a complete 12-minute authored work is not a defect). Record S4a and S4b as separate archetypes in the evidence record; legacy evidence may use S4 for a 60-minute combined session.
+
+S4a and S4b are each mandatory for any FLOW/engagement score above the low band. If the agent stopped at first prototype, S4b surfaces thinness, repetition, padding.
 
 ## S5 Exploratory — no goal, probe edges
 
@@ -76,8 +85,9 @@ Evidence: timestamped note [S9][MM:SS] + why it worked/failed, plus screenshot i
 
 ## Coverage requirement
 
-- Must complete at least one S3, one S4, one S5 per game to be eligible to score flow/engagement and depth at medium/high. Above low band on any flow/engagement criterion forbidden without ≥30 min live play evidence.
+- Must complete at least one S3, one S4a, one S4b (or legacy S4), one S5 per game to be eligible to score flow/engagement and depth at medium/high. Above low band on any flow/engagement criterion forbidden without ≥30 min live play evidence (for short games, that evidence may be the full arc + repeats accumulated across S3/S4b/S8).
 - S9 mandatory for any V8/A6/M7/G7 score ≥3.
+- Record which archetypes were run (S1..S9, S4a/S4b) in the evidence record; any archetype skipped must be stated with a reason in the report.
 
 ## Hard-case handling
 

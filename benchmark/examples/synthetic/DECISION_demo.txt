@@ -3,15 +3,15 @@ DECISION BLOCK — head-to-head
   DECISION : Game A wins
   Basis    : hard_failure   Confidence: MEDIUM
 ------------------------------------------------------------------
-  OVERALL        A = 85.4   | B = 55.0    (A better)
+  OVERALL        A = 84.7   | B = 55.0    (A better)
   Reliability    A = 90.2   | B = 65.9    (A)
-  Creative       A = 91.1   | B = 87.7    (A)
-  Gameplay       A = 83.5   | B = 68.0    (A)
-  Flow           A = 80.6   | B = 64.4    (A)
+  Creative       A = 89.8   | B = 83.4    (A)
+  Gameplay       A = 81.0   | B = 64.0    (A)
+  Flow           A = 79.6   | B = 64.2    (A)
   DefectSev      A = 99.4   | B = 96.0    (A)
 ------------------------------------------------------------------
   Originality (V0) : A = 3 | B = 5  (separate creative signal)
   Ceilings          : A = none | B = ['CEIL-1']
   Hard failures     : A = {'blockers': 0, 'criticals': 0} | B = {'blockers': 0, 'criticals': 1}
-  Pairwise          : winner=A  confidence=0.80  both_orderings_agree=True
+  Pairwise          : winner=A  confidence=0.81  both_orderings_agree=True
 ==================================================================

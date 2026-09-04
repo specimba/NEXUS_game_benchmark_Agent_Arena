@@ -56,9 +56,39 @@ Any hit logged as Critical CONTAINMENT defect and that channel barred (see bench
 
 Hand over: frozen build, way to run it, blind label, shared spec (for reference), evidence schema. Withhold: agent identity, build logs, brief, any claim about how game was made.
 
+## 6a. Testing a held prompt (e.g. v19 CORE field tests)
+
+The launcher always reads `BATTLE_PROMPT.md` (and hashes it into the run manifest), so
+running any prompt version is a **file swap, not a code change**:
+
+```bash
+# 1. back up the live prompt, install the held version
+cp challenge/BATTLE_PROMPT.md challenge/BATTLE_PROMPT_v17_LIVE_BACKUP.md   # if not already archived
+cp challenge/BATTLE_PROMPT_v19_CORE.md challenge/BATTLE_PROMPT.md
+
+# 2. sanity: confirm which version the swap installed
+head -1 challenge/BATTLE_PROMPT.md          # -> ... (v19 CORE)
+sha256sum challenge/BATTLE_PROMPT.md        # record this hash (manifest stores brief_sha256)
+
+# 3. launch as usual — setup/finalize record the prompt hash automatically
+python launch_challenge.py setup --out runs/r015-v19core --agents 2 --budget-min 90
+python launch_challenge.py single-prompt --out runs/r015-v19core     # for no-repo agents
+python launch_challenge.py finalize --out runs/r015-v19core --agents 2
+# 4. check run_manifest.json: brief_sha256 per agent must match step 2 (sha256, not md5)
+```
+
+Rules for a held-prompt test round:
+
+- **Both agents get the identical swapped file** (fairness contract #1). Never mix v17 and
+  v19 within one comparison.
+- Record which prompt version ran in the battle-log row + evidence meta (`prompt_version`).
+- Restore the live prompt afterwards: `git checkout -- challenge/BATTLE_PROMPT.md` (live
+  stays v17 until the v17/v18/v19 validation in `benchmark/19-prompt-merge-blueprint.md`).
+- Containment audit tokens are prompt-independent; a held prompt swap needs no audit change.
+
 ## 7. Key files
 
-- `BATTLE_PROMPT.md` — single challenge prompt (identical for both). Fully self-contained, open-ended, unlimited creativity: agent chooses 2D/3D/experimental format that wins human jury. Includes graphical ambition heavily weighted and no environment-sniffing anti-behavior.
+- `BATTLE_PROMPT.md` — single challenge prompt (identical for both). Fully self-contained, open-ended, unlimited creativity: agent chooses 2D/3D/experimental format that wins human jury. Includes graphical ambition heavily weighted and no environment-sniffing anti-behavior. **Live version = v17** (lineage files: `BATTLE_PROMPT_v14_LEAN.md` … `BATTLE_PROMPT_v19_CORE.md`; see the lineage table in the repo README battle log).
 - `LAUNCH_PROTOCOL.md` — how to launch fairly when repo access heterogeneous, keep evaluation out of agents' reach, assume rubric public no-exploit guarantee
 - `DEVELOPER_SELF_QA.md` — internal build-verification checklist (launch, controls, feel, loop, rewards, persistence, states, robustness, accessibility, performance, audio, environment consistency, visual ambition)
 - `launch_challenge.py` — harness helper: setup (provision 2 isolated workspaces with identical brief + hash), single-prompt (emit paste-ready self-contained prompt for no-repo agents), finalize (record end time + build hashes + elapsed), audit (containment scan), status (show manifest)

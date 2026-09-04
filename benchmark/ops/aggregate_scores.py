@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Ashen Descent Arena — score aggregator (reference implementation).
+NEXUS Agent Arena — score aggregator (reference implementation).
 
-Pure, external aggregation. Reads evidence JSON (ops/evidence_schema.json format)
+Pure, external aggregation. Reads evidence JSON (ops/evidence_schema.json v2 format)
 and computes, per game:
     - category scores  (0-10) and OVERALL_raw (0-100)
     - hard-failure penalty and OVERALL_adj
@@ -12,60 +12,86 @@ And across pairs:
     - pairwise win/loss record and a Bradley-Terry / Elo-anchored ranking
       with bootstrap confidence intervals.
 
+SINGLE SOURCE OF TRUTH: weights, criteria id sets, ceilings and penalty constants are
+loaded from benchmark/contracts/RUBRIC_v2.json (canonical), NOT hard-coded here.
+benchmark/ops/consistency_check.py fails if this module ever drifts from the contract
+again (historically the aggregator silently ignored M7/M8, G7, V6-V9, A6 and CEIL-5..9).
+
 This module contains NO scoring logic that ships with a game. It only reads external
 evidence. Containment is an operational requirement enforced at freeze/audit time.
 
 Usage:
     python aggregate_scores.py <evidence_dir> [--pairs pairs.json] [--bt]
+                               [--contract PATH]
 
-Evidence layout (one per game):
+Evidence layout, v2 (one frozen record per game, no pairwise content inside):
     <evidence_dir>/game_A.json   {"game": "A", ... schema ...}
     <evidence_dir>/game_B.json   {"game": "B", ... schema ...}
-Or a single combined file:
-    <evidence_dir>/pair_<id>.json {"game_a": {...}, "game_b": {...},
-                                   "pairwise": {"winner": "A|B|tie", ...}}
+    <evidence_dir>/pairwise_result.json   separate pairwise receipt (optional, canonical)
+Legacy layouts still accepted:
+    combined pair file  {"game_a": {...}, "game_b": {...}, "pairwise": {"winner": ...}}
+    per-game file with legacy "pairwise_verdict" (deprecated — v2 schema forbids it)
 
 --pairs pairs.json : optional list of {"a": "A", "b": "B", "winner": "A|B|tie"} to fit
                      a Bradley-Terry ranking across many pair results.
+--contract PATH    : override the rubric contract (default benchmark/contracts/RUBRIC_v2.json;
+                     may also be set with the NEXUS_RUBRIC_CONTRACT environment variable).
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 import os
 import random
 import sys
 from collections import defaultdict
+from pathlib import Path
 
-# Rubric weights (public, fixed). Sum = 100.
-WEIGHTS = {"T": 20, "M": 18, "G": 18, "F": 14, "V": 12, "A": 10, "X": 8}
+# --------------------------------------------------------------------------
+# Rubric contract (canonical: benchmark/contracts/RUBRIC_v2.json)
+# --------------------------------------------------------------------------
+
+DEFAULT_CONTRACT = Path(__file__).resolve().parents[1] / "contracts" / "RUBRIC_v2.json"
+
+
+def load_contract(path: str | os.PathLike | None = None) -> tuple[dict, str]:
+    """Load the rubric contract JSON. Path resolution order:
+    explicit argument > NEXUS_RUBRIC_CONTRACT env var > repository canonical file.
+    Returns (parsed contract, sha256 of contract file bytes)."""
+    p = None
+    if path:
+        p = Path(path)
+    elif os.environ.get("NEXUS_RUBRIC_CONTRACT"):
+        p = Path(os.environ["NEXUS_RUBRIC_CONTRACT"])
+    else:
+        p = DEFAULT_CONTRACT
+    if not p.exists():
+        sys.exit(f"[fatal] rubric contract not found: {p} — run consistency_check.py")
+    raw = p.read_bytes()
+    data = json.loads(raw.decode("utf-8"))
+    if data.get("weights_sum_check") != 100:
+        sys.exit(f"[fatal] rubric contract {p} weights no longer sum to 100")
+    return data, hashlib.sha256(raw).hexdigest()
+
+
+_CONTRACT, CONTRACT_SHA256 = load_contract()
+CONTRACT_ID = f"{_CONTRACT['contract_id']} v{_CONTRACT['version']}"
+
+# Rubric weights (from contract). Sum = 100.
+WEIGHTS = {k: int(v) for k, v in _CONTRACT["weights"].items()}
 CATEGORIES = sorted(WEIGHTS, key=lambda c: -WEIGHTS[c])
 
-# Sub-criterion id prefixes per category (rubric §2.2).
-CRITERIA = {
-    "T": [f"T{i}" for i in range(1, 8)],
-    "M": [f"M{i}" for i in range(1, 7)],
-    "G": [f"G{i}" for i in range(1, 7)],
-    "F": [f"F{i}" for i in range(1, 7)],
-    # V0 is graphical originality & visual richness/complexity (the differentiator
-    # most one-shot benchmarks miss); V1..V5 are the other visual sub-criteria.
-    "V": ["V0"] + [f"V{i}" for i in range(1, 6)],
-    "A": [f"A{i}" for i in range(1, 6)],
-    "X": [f"X{i}" for i in range(1, 6)],
-}
+# Sub-criterion ids per category (rubric §2.2) — from contract.
+CRITERIA = {k: list(v) for k, v in _CONTRACT["criteria"].items()}
 
-SEV_HARD_POINTS = {"Blocker": 6.0, "Critical": 4.0}
-SEV_SEV_POINTS = {"Minor": 0.5, "Trivial": 0.1}
-HARD_PENALTY_CAP = 30.0
+SEV_HARD_POINTS = dict(_CONTRACT["penalties"]["hard_by_severity"])
+SEV_SEV_POINTS = dict(_CONTRACT["penalties"]["defect_severity_by_severity"])
+HARD_PENALTY_CAP = float(_CONTRACT["penalties"]["hard_cap"])
 
-CEILINGS = {
-    "CEIL-1": 55.0,  # main-path crash / soft-lock
-    "CEIL-2": 65.0,  # completion loop unreachable
-    "CEIL-3": 60.0,  # core controls broken >30%
-    "CEIL-4": 70.0,  # persistence fails on fresh browser
-}
+CEILINGS = {k: float(v) for k, v in _CONTRACT["ceilings"].items()}
 
 
 def category_score(sub_scores: dict, cat: str) -> tuple[float, int, list[int]]:
@@ -251,6 +277,18 @@ def add_vote(comparisons: list, x: str, y: str, winner: str) -> None:
 # ---------- I/O ----------
 
 def load_evidence(dirpath: str) -> tuple[list[dict], list[tuple[str, str, float]]]:
+    """Load per-game evidence and pairwise votes from an evidence directory.
+
+    Accepted files:
+      * per-game v2 evidence      {"game": "A"|"B", ...} (no pairwise content)
+      * canonical pairwise        {"pair_id": ..., "game_a": "A", "game_b": "B",
+                                   "winner": "A"|"B"|"tie", ...} (flat receipt)
+      * legacy combined pair      {"game_a": {...}, "game_b": {...},
+                                   "pairwise": {"winner": ...}}
+      * legacy per-game w/        {"game": "A", "pairwise_verdict": {...}}
+        pairwise_verdict          (deprecated; v2 schema forbids pairwise in game records)
+    Lists (e.g. h2h_pairs.json) are ignored here — pass them via --pairs instead.
+    """
     games, comparisons = [], []
     for fn in sorted(os.listdir(dirpath)):
         if not fn.endswith(".json"):
@@ -262,18 +300,27 @@ def load_evidence(dirpath: str) -> tuple[list[dict], list[tuple[str, str, float]
         except (OSError, json.JSONDecodeError) as e:
             print(f"[warn] skipping unreadable {fn}: {e}", file=sys.stderr)
             continue
-        if isinstance(obj, dict) and obj.get("game") in ("A", "B"):
+        if not isinstance(obj, dict):
+            continue
+        if obj.get("game") in ("A", "B"):
             games.append(obj)
             pv = obj.get("pairwise_verdict") or {}
             winner = pv.get("winner")
             if winner in ("A", "B", "tie"):
+                # legacy embedded verdict (deprecated in the v2 evidence schema)
                 add_vote(comparisons, "A", "B", winner)
-        elif isinstance(obj, dict) and "game_a" in obj and "game_b" in obj:
+        elif isinstance(obj.get("game_a"), dict) and isinstance(obj.get("game_b"), dict):
+            # legacy combined pair file
             games.extend([obj["game_a"], obj["game_b"]])
             pw = obj.get("pairwise") or {}
             w = pw.get("winner")
             if w in ("A", "B", "tie"):
                 add_vote(comparisons, "A", "B", w)
+        elif isinstance(obj.get("game_a"), str) and isinstance(obj.get("game_b"), str):
+            # canonical v2 standalone pairwise receipt (pairwise_result*.json)
+            w = obj.get("winner")
+            if w in ("A", "B", "tie"):
+                add_vote(comparisons, obj["game_a"], obj["game_b"], w)
     return games, comparisons
 
 
@@ -281,10 +328,21 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("evidence_dir", help="directory of evidence JSON files")
     ap.add_argument("--pairs", help="optional pairs.json (list of {'a','b','winner'}) to merge for BT ranking")
+    ap.add_argument("--contract", help="override rubric contract JSON (default: benchmark/contracts/RUBRIC_v2.json)")
     ap.add_argument("--bt", action="store_true", help="fit Bradley-Terry ranking + bootstrap CIs")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--n-boot", type=int, default=1000)
     args = ap.parse_args()
+
+    # (re)load contract if overridden on the command line
+    global _CONTRACT, CONTRACT_SHA256, CONTRACT_ID, WEIGHTS, CATEGORIES, CRITERIA, CEILINGS  # noqa: PLW0603
+    if args.contract:
+        _CONTRACT, CONTRACT_SHA256 = load_contract(args.contract)
+        CONTRACT_ID = f"{_CONTRACT['contract_id']} v{_CONTRACT['version']}"
+        WEIGHTS = {k: int(v) for k, v in _CONTRACT["weights"].items()}
+        CATEGORIES = sorted(WEIGHTS, key=lambda c: -WEIGHTS[c])
+        CRITERIA = {k: list(v) for k, v in _CONTRACT["criteria"].items()}
+        CEILINGS = {k: float(v) for k, v in _CONTRACT["ceilings"].items()}
 
     games, comparisons = load_evidence(args.evidence_dir)
     if args.pairs:
@@ -297,6 +355,7 @@ def main() -> None:
 
     results = {g["game"]: aggregate_game(g) for g in games}
 
+    print(f"CONTRACT: {CONTRACT_ID}  sha256 {CONTRACT_SHA256[:12]}…")
     print("=== PER-GAME SCORES ===")
     for lbl in sorted(results, key=lambda l: -results[l]["overall"]):
         r = results[lbl]

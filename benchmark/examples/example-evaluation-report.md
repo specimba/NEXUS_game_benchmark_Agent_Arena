@@ -5,12 +5,19 @@
 > illustrate the format — it is **not** a real evaluation and must not be mistaken for one.
 > To run a real comparison, follow `challenge/README.md` (build) and `benchmark/07`
 > (evaluate), then produce a report from real evidence using this as the format guide.
+>
+> **Note (2026-09-03):** this worked example predates rubric contract v2 and the S4a/S4b
+> split; its category weights/figures are illustrative and were not recomputed under
+> `benchmark/contracts/RUBRIC_v2.json`. For current executable scoring facts use the
+> machine contract; for the current session set use `benchmark/03` (S1–S9 + S4a/S4b).
+> The machine-readable pairing of a real run must use one evidence record per game plus a
+> separate `pairwise_result.json` receipt (see `benchmark/05`, `benchmark/contracts/`).
 
 ---
 
-# Ashen Descent Arena — Evaluation Report
+# NEXUS Agent Arena — Evaluation Report
 
-**Pair ID:** `AD-0001` · **Date:** 2026-08-09 · **Evaluator:** `Eval-Panel-3`
+**Pair ID:** `GC-0001` · **Date:** 2026-08-09 · **Evaluator:** `Eval-Panel-3`
 **Ordering assigned:** A‑first · **Judge panel:** 3 judge families (ensemble majority)
 **Hardware profile:** Std VM (8‑core, 16 GB, Chrome) + mobile emulation (Pixel, 390×844)
 **Browser matrix:** desktop 1280×800 & 1920×1080; mobile portrait/landscape; Firefox smoke
@@ -36,7 +43,8 @@
 | S1 Smoke (5 min) | ✅ 6m | ✅ 5m | Both: first attack, dodge, defeat enemy, reward, room transition |
 | S2 Warm restart (3 min) | ✅ 3m | ✅ 3m | Both: full state reset on instant restart |
 | S3 Medium goal (30 min) | ✅ 32m | ✅ 30m | A: cleared floor 3. B: cleared floor 2, then soft‑lock |
-| S4 Long continuous (60 min) | ✅ 61m | ✅ 60m | A: stable. B: FPS decay late; one freeze |
+| S4a Runtime soak (60 min) | ✅ 61m | ✅ 60m | A: stable. B: FPS decay late; one freeze (technical only) |
+| S4b Experience endurance | ✅ full arc + 3 runs | ✅ arc broken at soft-lock | A: arc complete, repeats varied. B: main-path soft-lock blocks full arc |
 | S5 Exploratory (20 min) | ✅ 21m | ✅ 19m | A: all abilities/enemies. B: all reached; boss on 2nd run |
 | S6 Edge & boundary (15 min) | ✅ 14m | ✅ 15m | A: all probes pass. B: P‑Persist fail, P‑Stuck fail |
 | S7 Accessibility (15 min) | ✅ 15m | ✅ 16m | A: passes. B: reduced‑motion works; focus OK |

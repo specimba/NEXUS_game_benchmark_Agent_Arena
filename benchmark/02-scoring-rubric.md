@@ -222,3 +222,141 @@ The v12 prompt merges the operator-proposed "2026 Creative Battle Prompt," which
 | Memorability | G6 (fun/sustained) + V8 + A6 |
 
 **Discovery and Memorability become first-class evaluation priorities** (previously implicit): in the HUMAN_JURY pillar (§2.4), weigh the discovery cluster (G5/G7/V8/M8) and the memorability cluster (G6/V8/A6) explicitly. No new weights or sub-criteria are added — they already exist; the v12 merge only elevates attention to them, matching the operator's repeated emphasis on discovery, atmosphere, and memorability across Rounds 002–008.
+
+## 2.11 Machine contract — single source of truth
+
+The executable facts of this rubric (weights, criterion id sets, ceiling caps, penalty
+constants) are mirrored verbatim in `benchmark/contracts/RUBRIC_v2.json`. **Markdown
+describes; JSON computes.** The JSON is consumed by `benchmark/ops/aggregate_scores.py`
+and `benchmark/ops/validate_evidence.py`. Never change one copy without the other:
+`python benchmark/ops/consistency_check.py` and `python benchmark/tests/run_all.py` fail
+on any drift between this doc, the contract, the aggregator, and the evidence schema
+(this guard exists because the aggregator historically kept scoring with stale
+weights/criteria/ceilings while this rubric moved on).
+
+<!-- RUBRIC_CONTRACT_V2_BEGIN -->
+{
+  "contract_id": "NEXUS-ARENA-RUBRIC-2",
+  "version": "2.0.0",
+  "title": "NEXUS Agent Arena \u2014 machine-executable rubric contract",
+  "description": "Single source of truth for the executable scoring semantics: category weights, sub-criterion id sets, ceiling caps and penalty constants. Human-readable semantics and behavioural anchors live in benchmark/02-scoring-rubric.md. Markdown describes; JSON computes. Any change here must be applied together with the embedded copy in benchmark/02-scoring-rubric.md, then verified by: python3 benchmark/ops/consistency_check.py and python3 benchmark/tests/run_all.py",
+  "source_doc": "benchmark/02-scoring-rubric.md",
+  "release_date": "2026-09-03",
+  "weights_sum_check": 100,
+  "weights": {
+    "T": 16,
+    "M": 17,
+    "G": 17,
+    "F": 12,
+    "V": 20,
+    "A": 12,
+    "X": 6
+  },
+  "criteria": {
+    "T": [
+      "T1",
+      "T2",
+      "T3",
+      "T4",
+      "T5",
+      "T6",
+      "T7"
+    ],
+    "M": [
+      "M1",
+      "M2",
+      "M3",
+      "M4",
+      "M5",
+      "M6",
+      "M7",
+      "M8"
+    ],
+    "G": [
+      "G1",
+      "G2",
+      "G3",
+      "G4",
+      "G5",
+      "G6",
+      "G7"
+    ],
+    "F": [
+      "F1",
+      "F2",
+      "F3",
+      "F4",
+      "F5",
+      "F6"
+    ],
+    "V": [
+      "V0",
+      "V1",
+      "V2",
+      "V3",
+      "V4",
+      "V5",
+      "V6",
+      "V7",
+      "V8",
+      "V9"
+    ],
+    "A": [
+      "A1",
+      "A2",
+      "A3",
+      "A4",
+      "A5",
+      "A6"
+    ],
+    "X": [
+      "X1",
+      "X2",
+      "X3",
+      "X4",
+      "X5"
+    ]
+  },
+  "sub_score_scale": {
+    "min": 0,
+    "max": 5
+  },
+  "ceilings": {
+    "CEIL-1": 55,
+    "CEIL-2": 65,
+    "CEIL-3": 60,
+    "CEIL-4": 70,
+    "CEIL-5": 50,
+    "CEIL-6": 65,
+    "CEIL-7": 60,
+    "CEIL-8": 55,
+    "CEIL-9": 55
+  },
+  "ceiling_definitions": {
+    "CEIL-1": "main-path crash / soft-lock",
+    "CEIL-2": "primary completion loop unreachable",
+    "CEIL-3": "core controls broken >30% (incl. mouse-aim broken, out-of-canvas soft-lock)",
+    "CEIL-4": "persistence fails on fresh browser (when persistence claimed)",
+    "CEIL-5": "first level/wave unbeatable by a real human in ~5 min, OR an early difficulty cliff that blocks ALL further honest progress",
+    "CEIL-6": "constant audio drone / streaming loop that cannot be silenced",
+    "CEIL-7": "menu <-> gameplay state leak (clicks/keys fire through overlays or trap after close)",
+    "CEIL-8": "ambition-theater 3D: shipped 3D/heavy-tech that structurally breaks controls or framerate",
+    "CEIL-9": "persistent visual occlusion: full-screen effect (flash/bloom/whiteout/additive blowout) that fails to decay (~2 s) and renders the playfield unreadable until reload"
+  },
+  "penalties": {
+    "hard_by_severity": {
+      "Blocker": 6.0,
+      "Critical": 4.0
+    },
+    "hard_cap": 30.0,
+    "defect_severity_by_severity": {
+      "Minor": 0.5,
+      "Trivial": 0.1
+    }
+  },
+  "notes": {
+    "aggregation": "CATEGORY_c = round(mean(sub_criteria_c) x 2, 1); OVERALL_raw = sum_c WEIGHT_c x CATEGORY_c / 10; OVERALL_adj = max(0, OVERALL_raw - min(hard_cap, blockers*6 + criticals*4)); OVERALL = min(OVERALL_adj, applicable ceilings). N/A criteria (documented in evidence not_applicable) are excluded from the mean.",
+    "pairwise": "Per-game evidence records contain NO pairwise content. Pairwise verdicts live in a separate pairwise_result.json receipt (benchmark/contracts/pairwise_result.schema.json)."
+  }
+}
+<!-- RUBRIC_CONTRACT_V2_END -->

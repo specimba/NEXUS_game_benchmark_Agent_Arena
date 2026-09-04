@@ -1,12 +1,253 @@
-{"game":"A",
- "sub_scores":{
-  "T":{"T1":5,"T2":4,"T3":5,"T4":4,"T5":4,"T6":4,"T7":4},
-  "M":{"M1":4,"M2":5,"M3":4,"M4":4,"M5":4,"M6":5},
-  "G":{"G1":4,"G2":4,"G3":4,"G4":4,"G5":4,"G6":4},
-  "F":{"F1":4,"F2":4,"F3":4,"F4":4,"F5":3,"F6":4},
-  "V":{"V0":3,"V1":5,"V2":5,"V3":5,"V4":5,"V5":4},
-  "A":{"A1":5,"A2":4,"A3":5,"A4":5,"A5":4},
-  "X":{"X1":5,"X2":5,"X3":4,"X4":5,"X5":4}},
- "defects":[{"severity":"Minor"},{"severity":"Trivial"}],
- "ceilings":[],
- "coverage":{"T":"FULL","M":"FULL","G":"FULL","F":"FULL","V":"FULL","A":"FULL","X":"FULL"}}
+{
+ "game": "A",
+ "meta": {
+  "hardware": "profile P1 (8-core CPU, 16 GB RAM, integrated GPU, mid-2026)",
+  "browser_matrix": "Chrome 140 + Firefox 137 desktop; Safari 18 iOS viewport",
+  "evaluator": "ev-0412",
+  "ordering": "A-first",
+  "judge_family": "jury-alpha",
+  "rubric_version": "rubric-2.0",
+  "prompt_version": "BATTLE_PROMPT_v18",
+  "contract_version": "2.0.0",
+  "contract_sha256": "e1781e72a870b899fe76a4ba0e98384452f3de68ec7787077f1feba975195349",
+  "benchmark_run_id": "NEXUS-PC-101",
+  "build_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "start_ts": "2026-09-01T10:00:00Z",
+  "end_ts": "2026-09-01T14:30:00Z"
+ },
+ "sessions": {
+  "S1": {
+   "duration_seconds": 300,
+   "objective_met": true,
+   "notes": [
+    "cold launch, start screen renders, first interaction <10s"
+   ]
+  },
+  "S2": {
+   "duration_seconds": 180,
+   "objective_met": true,
+   "notes": [
+    "instant restart, state fully reset"
+   ]
+  },
+  "S3": {
+   "duration_seconds": 1800,
+   "objective_met": true,
+   "notes": [
+    "goal-directed run to mid-game reached"
+   ]
+  },
+  "S4a": {
+   "duration_seconds": 3600,
+   "objective_met": true,
+   "notes": [
+    "60 min technical soak"
+   ],
+   "perf_samples": [
+    {
+     "at_min": 0,
+     "fps": 60,
+     "jank_pct": 0,
+     "memory_note": "baseline"
+    },
+    {
+     "at_min": 15,
+     "fps": 60,
+     "jank_pct": 1,
+     "memory_note": "flat"
+    },
+    {
+     "at_min": 30,
+     "fps": 59,
+     "jank_pct": 2,
+     "memory_note": "flat"
+    },
+    {
+     "at_min": 45,
+     "fps": 60,
+     "jank_pct": 1,
+     "memory_note": "flat"
+    },
+    {
+     "at_min": 60,
+     "fps": 60,
+     "jank_pct": 0,
+     "memory_note": "flat \u2014 pooling evident"
+    }
+   ]
+  },
+  "S4b": {
+   "duration_seconds": 2400,
+   "objective_met": true,
+   "notes": [
+    "full arc then 2 repeats; holds identity"
+   ]
+  },
+  "S5": {
+   "duration_seconds": 1200,
+   "objective_met": true,
+   "notes": [
+    "edges, menus, both control schemes"
+   ]
+  },
+  "S6": {
+   "duration_seconds": 900,
+   "objective_met": true,
+   "notes": [
+    "resize, blur/focus pause, mash stress clean"
+   ]
+  },
+  "S7": {
+   "duration_seconds": 600,
+   "objective_met": true,
+   "notes": [
+    "keyboard-only ok; reduced-motion verified"
+   ]
+  },
+  "S8": {
+   "duration_seconds": 2400,
+   "objective_met": true,
+   "notes": [
+    "2 repeat runs; variation observed"
+   ]
+  },
+  "S9": {
+   "duration_seconds": 600,
+   "objective_met": true,
+   "notes": [
+    "creative probe: twist is learnable and sustained"
+   ]
+  }
+ },
+ "sub_scores": {
+  "T": {
+   "T1": 5,
+   "T2": 4,
+   "T3": 5,
+   "T4": 4,
+   "T5": 4,
+   "T6": 4,
+   "T7": 4
+  },
+  "M": {
+   "M1": 4,
+   "M2": 5,
+   "M3": 4,
+   "M4": 4,
+   "M5": 4,
+   "M6": 5,
+   "M7": 4,
+   "M8": 4
+  },
+  "G": {
+   "G1": 4,
+   "G2": 4,
+   "G3": 4,
+   "G4": 4,
+   "G5": 4,
+   "G6": 4,
+   "G7": 3
+  },
+  "F": {
+   "F1": 4,
+   "F2": 4,
+   "F3": 4,
+   "F4": 4,
+   "F5": 3,
+   "F6": 4
+  },
+  "V": {
+   "V0": 3,
+   "V1": 5,
+   "V2": 5,
+   "V3": 5,
+   "V4": 5,
+   "V5": 4,
+   "V6": 4,
+   "V7": 5,
+   "V8": 4
+  },
+  "A": {
+   "A1": 5,
+   "A2": 4,
+   "A3": 5,
+   "A4": 5,
+   "A5": 4,
+   "A6": 4
+  },
+  "X": {
+   "X1": 5,
+   "X2": 5,
+   "X3": 4,
+   "X4": 5,
+   "X5": 4
+  }
+ },
+ "not_applicable": {
+  "V": [
+   "V9"
+  ]
+ },
+ "evidence": {
+  "T1": [
+   "[S1][00:00:02] cold launch; start screen renders clean profile"
+  ],
+  "V0": [
+   "[S3] layered lighting + palette identity sustained across full run"
+  ],
+  "M8": [
+   "[S4b] second beat lands at ~7 min; scaling curve observed through 15+ min"
+  ]
+ },
+ "defects": [
+  {
+   "id": "A-D1",
+   "title": "title-flash at boot",
+   "severity": "Minor",
+   "class": "UI",
+   "reproduction": [
+    "repro steps in session notes"
+   ],
+   "blocks_progress": false,
+   "recoverable": "restart",
+   "score_channel": "CATEGORY",
+   "reproductions_confirmed": 1,
+   "immersion_damage": "low"
+  },
+  {
+   "id": "A-D2",
+   "title": "one glyph clipped in credits",
+   "severity": "Trivial",
+   "class": "Cosmetic",
+   "reproduction": [
+    "repro steps in session notes"
+   ],
+   "blocks_progress": false,
+   "recoverable": "restart",
+   "score_channel": "DEFECT_SEVERITY",
+   "reproductions_confirmed": 1,
+   "immersion_damage": "low"
+  }
+ ],
+ "ceilings": [],
+ "coverage": {
+  "T": "FULL",
+  "M": "FULL",
+  "G": "FULL",
+  "F": "FULL",
+  "V": "FULL",
+  "A": "FULL",
+  "X": "FULL"
+ },
+ "process": {
+  "time_to_first_playable_seconds": 900,
+  "tests_run": 14,
+  "defects_self_detected": 6,
+  "defects_repaired": 6,
+  "regressions_introduced": 1,
+  "regressions_repaired": 1,
+  "wall_seconds": 14400,
+  "tool_calls": 240,
+  "iteration_count": 9
+ }
+}

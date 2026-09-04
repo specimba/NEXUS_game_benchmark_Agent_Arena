@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Ashen Descent Agent Arena — challenge launcher (harness helper).
+NEXUS Agent Arena — challenge launcher (harness helper).
 
 Provisions two ISOLATED agent workspaces, drops the IDENTICAL challenge brief + spec into
 each, records a start/stop time budget, computes build hashes at finalize, and runs a
@@ -146,7 +146,7 @@ def cmd_single_prompt(args) -> None:
     spec_note = ""
     # The brief already embeds the full spec, so the single prompt is self-contained.
     prompt = (
-        "# ASHEN DESCENT — AGENT CHALLENGE (single self-contained prompt)\n"
+        "# NEXUS AGENT ARENA — AGENT CHALLENGE (single self-contained prompt)\n"
         "# Deliver this entire message to the agent. It is fully self-contained; the agent\n"
         "# does not need any repository access. (Identical content is also shipped to agents\n"
         "# that DO have repo access, as BATTLE_PROMPT.md.)\n\n"

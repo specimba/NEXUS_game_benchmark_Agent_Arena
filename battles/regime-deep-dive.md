@@ -1,5 +1,22 @@
 # Regime Deep Dive — Are we sure about restrictions and obligatory things?
 
+> **Addendum 2026-09-04 — the in-regime ceiling moved.** This document's Fact 1
+> ("visual quality comes from imagery… procedural-only code art has a hard ceiling")
+> and the §6 decision to keep Track A one-shot as "the regime" were written against a
+> pre-Astra evidence set. On 2026-09-04, arena.ai's own Peter Gostev shipped
+> **Van Gogh Town** — GPT-6-Astra (Max) turning six Van Gogh paintings into one
+> continuous walkable Three.js town, **zero iterations**, in what is almost certainly
+> the same single-session sandbox regime as our Track A agents (20.5K views, hosted
+> live; deep-dive in [`van-gogh-town-deep-dive.md`](van-gogh-town-deep-dive.md)). The
+> revised reading: **the ceiling is model-tier-dependent, and the Max tier just moved it
+> inside our regime.** Track A stays the regime (operator decision §6 stands), but
+> "procedural/code art has a hard ceiling" is no longer a safe prior for Max-tier
+> models, and R015's pool should include GPT-6-Astra Max if reachable. Whether its
+> painterly look is pure code/shader craft or internally generated imagery is not yet
+> public; either way, the *connected-geography, presence-first* prompt structure it used
+> is a v20 candidate arm (structure only, never named content anchors — convergence
+> doctrine unchanged).
+
 **Trigger:** operator question after Round 011: *"I see many thoughts from models talking to themselves, 'No crane game, no blacksmith, no glass blowing'… Are we sure about restrictions and obligatory things? How do we improve our approaches and their creativity for successful real creation, or not actually?"* — plus the operator's evidence set: the OpenAI GPT-5.6/Codex showcase games (Phantasy Codex Adventure, MiniTown, Tiny Rails, Glass Towers) and Pliny's FABLE-SHOWCASE, GL4SS, NATURALIS-HISTORIA.
 **Status:** analysis for operator decision. Every recommendation below is deferred to the Q&A — nothing is applied.
 

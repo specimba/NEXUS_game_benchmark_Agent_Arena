@@ -1,14 +1,25 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Ashen Descent Arena — Game Evidence Record",
-  "description": "Structured evidence emitted by one evaluator for one game. One object per game per evaluation session set.",
+  "title": "NEXUS Agent Arena — Game Evidence Record (v2)",
+  "description": "Structured evidence emitted by one evaluator for ONE game in one evaluation session set. Reproducibility-critical facts (rubric/prompt/contract versions and hashes, ordering, hardware) are mandatory meta. Criteria id sets, ceilings enum and meta requirements are pinned to benchmark/contracts/RUBRIC_v2.json — consistency_check.py fails if this file drifts from the contract. Pairwise verdicts are FORBIDDEN inside a game record: they belong in a separate pairwise_result.json receipt (benchmark/contracts/pairwise_result.schema.json) produced only after both game records are frozen (score A -> freeze A; score B -> freeze B; only then compare).",
   "type": "object",
-  "required": ["game", "meta", "sessions", "sub_scores", "defects", "coverage", "pairwise_verdict"],
+  "required": ["game", "meta", "sessions", "sub_scores", "defects", "coverage"],
   "properties": {
     "game": { "type": "string", "enum": ["A", "B"] },
     "meta": {
       "type": "object",
-      "required": ["hardware", "browser_matrix", "evaluator", "ordering", "judge_family", "rubric_version", "prompt_version"],
+      "description": "Evaluation-provenance and reproducibility identity.",
+      "required": [
+        "hardware",
+        "browser_matrix",
+        "evaluator",
+        "ordering",
+        "judge_family",
+        "rubric_version",
+        "prompt_version",
+        "contract_version",
+        "contract_sha256"
+      ],
       "properties": {
         "hardware": { "type": "string" },
         "browser_matrix": { "type": "string" },
@@ -17,14 +28,18 @@
         "judge_family": { "type": "string" },
         "rubric_version": { "type": "string" },
         "prompt_version": { "type": "string" },
-        "build_hash": { "type": "string" },
+        "contract_version": { "type": "string", "description": "version field of RUBRIC_v2.json in effect" },
+        "contract_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$", "description": "sha256 of the RUBRIC_v2.json contract bytes in effect" },
+        "benchmark_run_id": { "type": "string" },
+        "build_hash": { "type": "string", "description": "sha256/git hash of the frozen game build under evaluation" },
         "start_ts": { "type": "string" },
         "end_ts": { "type": "string" }
       }
     },
     "sessions": {
       "type": "object",
-      "description": "Keyed by archetype id S1..S8.",
+      "description": "Keyed by archetype id S1..S9 (S4 split into S4a runtime soak / S4b experience endurance per benchmark/03). S9 = creative probe.",
+      "propertyNames": { "pattern": "^S[1-9][ab]?$" },
       "additionalProperties": {
         "type": "object",
         "required": ["duration_seconds", "objective_met"],
@@ -51,45 +66,146 @@
     },
     "sub_scores": {
       "type": "object",
-      "description": "Sub-criterion scores 0-5 per category. Categories: T,M,G,F,V,A,X.",
-      "additionalProperties": {
-        "type": "object",
-        "properties": {
-          "T": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0, "maximum": 5 } },
-          "M": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0, "maximum": 5 } },
-          "G": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0, "maximum": 5 } },
-          "F": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0, "maximum": 5 } },
-          "V": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0, "maximum": 5 } },
-          "A": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0, "maximum": 5 } },
-          "X": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 0, "maximum": 5 } }
+      "description": "Sub-criterion scores 0-5 per category. Criteria id sets pinned to contracts/RUBRIC_v2.json (T1-T7, M1-M8, G1-G7, F1-F6, V0-V9, A1-A6, X1-X5). A missing criterion means N/A (excluded from the category mean) and MUST be listed in not_applicable; otherwise coverage for that category must be PARTIAL.",
+      "properties": {
+        "T": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "T1": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "T2": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "T3": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "T4": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "T5": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "T6": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "T7": { "type": "integer", "minimum": 0, "maximum": 5 }
+          }
+        },
+        "M": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "M1": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "M2": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "M3": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "M4": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "M5": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "M6": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "M7": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "M8": { "type": "integer", "minimum": 0, "maximum": 5 }
+          }
+        },
+        "G": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "G1": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "G2": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "G3": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "G4": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "G5": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "G6": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "G7": { "type": "integer", "minimum": 0, "maximum": 5 }
+          }
+        },
+        "F": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "F1": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "F2": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "F3": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "F4": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "F5": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "F6": { "type": "integer", "minimum": 0, "maximum": 5 }
+          }
+        },
+        "V": {
+          "type": "object",
+          "description": "V9 (working 3D/heavy-tech bonus) is N/A when no such ambition is attempted; deliberate polished 2D/minimalism is neutral, not penalized.",
+          "additionalProperties": false,
+          "properties": {
+            "V0": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "V1": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "V2": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "V3": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "V4": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "V5": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "V6": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "V7": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "V8": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "V9": { "type": "integer", "minimum": 0, "maximum": 5 }
+          }
+        },
+        "A": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "A1": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "A2": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "A3": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "A4": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "A5": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "A6": { "type": "integer", "minimum": 0, "maximum": 5 }
+          }
+        },
+        "X": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "X1": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "X2": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "X3": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "X4": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "X5": { "type": "integer", "minimum": 0, "maximum": 5 }
+          }
         }
       },
-      "additionalItems": false
+      "additionalProperties": false
+    },
+    "not_applicable": {
+      "type": "object",
+      "description": "Criteria deliberately not scored (rubric-sanctioned N/A, e.g. V9 for a deliberate 2D game): map category -> list of criterion ids. These are excluded from the category mean.",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string" }
+      }
     },
     "evidence": {
       "type": "object",
-      "description": "Mapping of sub-criterion id (e.g. G6) to evidence strings.",
+      "description": "Mapping of sub-criterion id (e.g. G6) to timestamped evidence strings.",
       "additionalProperties": { "type": "array", "items": { "type": "string" } }
     },
     "defects": {
       "type": "array",
       "items": { "$ref": "#/definitions/defect" }
     },
-    "ceilings": { "type": "array", "items": { "type": "string", "enum": ["CEIL-1","CEIL-2","CEIL-3","CEIL-4"] } },
+    "ceilings": {
+      "type": "array",
+      "description": "Ceilings triggered, pinned to contracts/RUBRIC_v2.json (CEIL-1..CEIL-9).",
+      "items": { "type": "string", "enum": ["CEIL-1", "CEIL-2", "CEIL-3", "CEIL-4", "CEIL-5", "CEIL-6", "CEIL-7", "CEIL-8", "CEIL-9"] }
+    },
     "coverage": {
       "type": "object",
-      "description": "Which categories have full vs partial coverage.",
+      "description": "Which categories have full vs partial coverage. FULL requires every non-N/A criterion of the category scored with evidence; otherwise PARTIAL. NOT_SCORED only when the whole category could not be experienced.",
       "additionalProperties": { "type": "string", "enum": ["FULL", "PARTIAL", "NOT_SCORED"] }
     },
-    "pairwise_verdict": {
+    "process": {
       "type": "object",
-      "required": ["winner", "confidence", "both_orderings_agree"],
+      "description": "PROVISIONAL (receipts v2 design, benchmark/09): development-process evidence recorded independently of artifact quality. Never rescues a bad artifact; reported separately.",
       "properties": {
-        "winner": { "type": "string", "enum": ["A", "B", "tie"] },
-        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
-        "both_orderings_agree": { "type": "boolean" }
+        "time_to_first_playable_seconds": { "type": ["integer", "null"] },
+        "tests_run": { "type": "integer" },
+        "defects_self_detected": { "type": "integer" },
+        "defects_repaired": { "type": "integer" },
+        "regressions_introduced": { "type": "integer" },
+        "regressions_repaired": { "type": "integer" },
+        "wall_seconds": { "type": "integer" },
+        "tool_calls": { "type": "integer" },
+        "iteration_count": { "type": "integer" }
       }
-    }
+    },
+    "pairwise_verdict": false
   },
   "definitions": {
     "defect": {
@@ -98,7 +214,7 @@
       "properties": {
         "id": { "type": "string" },
         "title": { "type": "string" },
-        "severity": { "type": "string", "enum": ["Blocker","Critical","Major","Minor","Trivial"] },
+        "severity": { "type": "string", "enum": ["Blocker", "Critical", "Major", "Minor", "Trivial"] },
         "class": { "type": "string" },
         "description": { "type": "string" },
         "reproduction": { "type": "array", "items": { "type": "string" } },
@@ -106,11 +222,11 @@
         "reproductions_confirmed": { "type": "integer" },
         "context": { "type": "object" },
         "blocks_progress": { "type": "boolean" },
-        "recoverable": { "type": "string", "enum": ["restart","reload","self_resolved","none"] },
-        "immersion_damage": { "type": "string", "enum": ["low","medium","high"] },
+        "recoverable": { "type": "string", "enum": ["restart", "reload", "self_resolved", "none"] },
+        "immersion_damage": { "type": "string", "enum": ["low", "medium", "high"] },
         "polish_only": { "type": "boolean" },
         "evidence": { "type": "array", "items": { "type": "string" } },
-        "score_channel": { "type": "string", "enum": ["HARD_PENALTY","CATEGORY","DEFECT_SEVERITY","CONTAINMENT"] },
+        "score_channel": { "type": "string", "enum": ["HARD_PENALTY", "CATEGORY", "DEFECT_SEVERITY", "CONTAINMENT"] },
         "assigned_to_categories": { "type": "array", "items": { "type": "string" } },
         "resolved_as_harness": { "type": "boolean" }
       }

@@ -1,0 +1,18 @@
+{
+ "pair_id": "NEXUS-PC-101",
+ "game_a": "A",
+ "game_b": "B",
+ "winner": "A",
+ "confidence": 0.8,
+ "both_orderings_agree": true,
+ "evaluator": "jury-alpha",
+ "ordering": "A-first",
+ "contract_version": "2.0.0",
+ "rubric_version": "rubric-2.0",
+ "prompt_version": "BATTLE_PROMPT_v18",
+ "rationale": "A wins on reliability gate (B hit CEIL-1); B leads raw originality (V0/V8/A6).",
+ "evidence_hashes": {
+  "game_a_evidence": "d1e9f38bd5d988986f85ea804131f9ea3009600faa2db4871431186a2c8647a5",
+  "game_b_evidence": "e491883e988500e99581fb66c146f1e088c72117f1b6e96d504bd1bd00c7aa19"
+ }
+}

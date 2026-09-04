@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "NEXUS Agent Arena — Pairwise Jury Receipt",
+  "description": "Standalone pairwise verdict between two games. Deliberately a SEPARATE object from each game's evidence record (benchmark/ops/evidence_schema.json): per-game evidence is scored and frozen independently of any head-to-head judgement (score A -> freeze A; score B -> freeze B; only then compare). A game evidence file that contains a pairwise verdict violates the evaluation doctrine.",
+  "type": "object",
+  "required": [
+    "pair_id",
+    "game_a",
+    "game_b",
+    "winner",
+    "confidence",
+    "both_orderings_agree",
+    "evaluator",
+    "ordering",
+    "contract_version",
+    "evidence_hashes"
+  ],
+  "properties": {
+    "pair_id": { "type": "string" },
+    "game_a": { "type": "string", "const": "A" },
+    "game_b": { "type": "string", "const": "B" },
+    "winner": { "type": "string", "enum": ["A", "B", "tie"] },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "both_orderings_agree": { "type": "boolean" },
+    "evaluator": { "type": "string" },
+    "ordering": { "type": "string", "enum": ["A-first", "B-first"] },
+    "rubric_version": { "type": "string" },
+    "prompt_version": { "type": "string" },
+    "contract_version": { "type": "string" },
+    "rationale": { "type": "string" },
+    "evidence_hashes": {
+      "type": "object",
+      "description": "SHA-256 of each frozen per-game evidence record this verdict compares. Keeps the pairwise step provably downstream of the independent scoring step.",
+      "required": ["game_a_evidence", "game_b_evidence"],
+      "properties": {
+        "game_a_evidence": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "game_b_evidence": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": true
+}
