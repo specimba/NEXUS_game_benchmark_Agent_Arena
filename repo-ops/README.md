@@ -34,3 +34,14 @@ Everything runs locally the same way (see each tool's `--help`/docstring).
 
 The ruleset can skip "Require status checks" — the same guarantees are available as
 pre-merge commands (documented in `benchmark/README.md`, "Anti-drift guard").
+
+---
+
+## Sandbox tools (verified, for the battle workspaces)
+
+| Tool | Class | What it does | Verified |
+|---|---|---|---|
+| [`sandbox-tools/blender-headless/`](sandbox-tools/blender-headless/README.md) | E1 (shell) | Blender 4.2 as a Python module with stub `.so`s for minimal hosts; seeded generator → glTF → Khronos validator → Cycles **CPU** QA stills | 2026-09-06 (analyst sandbox, rebuild-from-scratch) |
+| [`sandbox-tools/e2-probe-harness/`](sandbox-tools/e2-probe-harness/README.md) | E2/E3 (npm-only) | Makes a TypeScript autopilot probe **executable** with `esbuild` (ships inside Vite) on Node — no shell, no browser, no new runtime deps. Exit 0 pass / 1 failed check / 2 could-not-execute; `--json` summary for the README | 2026-09-21 (`./selftest.sh`: 2 pass paths, 4 failure paths, JSON mode) |
+
+The E2 harness exists because 21 of 22 sessions in round 018 wrote a probe they could never run; the one session that hooked its build to execute the probe found a real balance defect and delivered the round's best-received game. Dropping `run-probe.mjs` into a battle workspace (`"probe": "node scripts/run-probe.mjs"`) is an operator decision — see `challenge/SANDBOX_CAPABILITIES_GUIDE.md` §4 (D2).
