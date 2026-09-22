@@ -20,6 +20,25 @@ So the agent can write a headless probe (v21/v22 §4) and **cannot run it**. "Th
 
 The fix: **the build step can be a test runner.** If `npm` runs at all, `esbuild` is available (it ships with Vite), and Node is what executes the build.
 
+## 1b. Relationship to the battle prompt (v22)
+
+From v22 the prompt itself carries a 12-line version of this runner plus the probe's output
+contract (`export const fails = …` and one JSON line on stdout), because the prompt must be
+the **one and only file** an agent receives — no companion tools, no repo access. Both forms
+were executed before shipping:
+
+```jsonc
+// package.json — the two ways to trigger it
+"probe":   "node scripts/probe.mjs",                          // if npm scripts run
+"prebuild": "node scripts/probe.mjs",                         // if only the build runs: a failed
+"build":    "node scripts/probe.mjs && vite build"            // check then fails the build loudly
+```
+
+This harness remains the fuller tool for the **analyst/workspace** side (JSON summary,
+path-alias support, browser-global stubs, exit-code semantics documented, self-test), and is
+the artifact to drop into battle workspaces if the operator approves D2. The prompt version is
+deliberately minimal so that it costs the agent nothing to read.
+
 ## 2. Usage (copy into the game project)
 
 ```bash

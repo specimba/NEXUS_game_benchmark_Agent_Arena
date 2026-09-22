@@ -80,6 +80,27 @@ python launch_challenge.py finalize --out runs/r016-v20pkg --agents 2
 # 4. check run_manifest.json: brief_sha256 per agent must match step 2 (sha256, not md5)
 ```
 
+### 6b. v22+ runs: one file, nothing else
+
+From v22 the prompt is **fully self-contained**: one file, no spec, no self-QA, no companion
+guide. The launcher supports that contract directly, so no file swap is needed:
+
+```bash
+# repo-access agents: each workspace receives ONLY the prompt
+python launch_challenge.py setup --out runs/r019-v22 --agents 2 --budget-min 90 \
+    --prompt-only --prompt challenge/BATTLE_PROMPT_v22.md
+
+# no-repo agents: emit the paste-ready prompt, byte-identical to the held version
+python launch_challenge.py single-prompt --out runs/r019-v22 --bare \
+    --prompt challenge/BATTLE_PROMPT_v22.md      # -> runs/r019-v22/PROMPT.md
+```
+
+`--prompt-only` ships one file; `--bare` writes the prompt bytes unmodified (no wrapper
+comments) and prints the sha256. The manifest records `brief_version`, the per-agent file
+list and the shared `brief_sha256` — that is the fairness evidence for the round. To make a
+held version the default for every later run, copy it over the live file
+(`cp challenge/BATTLE_PROMPT_v22.md challenge/BATTLE_PROMPT.md`) — one command, same hash.
+
 Rules for a held-prompt test round:
 
 - **Both agents get the identical swapped file** (fairness contract #1). Never mix v17 and

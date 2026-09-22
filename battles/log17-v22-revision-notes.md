@@ -76,6 +76,30 @@ Growth is +30%, and it is **all generative/capability content** — **zero new b
 
 ---
 
+## 5b. v22 finalization (operator directive, 2026-09-22)
+
+Operator: *"we will add this should one and only contain it, nothing more, not even a second file needed. Simple like this, and it looks like that question 1-2 coverage needs smarter prompting instructions."* Three changes followed.
+
+**1. The prompt is the entire challenge — one file, no companions.** `challenge/BATTLE_PROMPT_v22.md` now stands alone end-to-end: every route, recipe and requirement is inline, and the only thing it ever referred to outside itself (§1's verification script) is now inline too. Nothing in it requires `GAME_SPEC.md`, `DEVELOPER_SELF_QA.md`, `SANDBOX_CAPABILITIES_GUIDE.md` or any repo tool.
+
+**2. The verification route is inline and executes.** §1 now carries the full runner (12 lines: esbuild-bundle → run on Node → exit non-zero when a check fails) plus the probe's own contract (`export const fails = …` + the JSON line). Both modes were executed before shipping: `npm run probe` (exit 0 pass / exit 1 on a false check) and the build-chain form (`"prebuild": "node scripts/probe.mjs"` / `"build": "node scripts/probe.mjs && vite build"`), where a failing check **fails the build** instead of shipping quietly. So the prompt now teaches the exact trick that produced R018's best-received game, with no external harness file required.
+
+**3. The opening questions became a gate with rejection tests (§0).** The old prompt asked two questions in prose and hoped. The new §0 asks **four** — why it must be played (Q1), the player's sentence (Q2), the recurring decision and what each side costs (Q3), has-it-already-been-made (Q4) — and gives each a **rejection test** phrased as a property of the answer, never as a named example (C15 law respected):
+- Q1 rejected if the sentence survives replacing "the player" with "someone watching a recording";
+- Q2 rejected if it describes a system rather than a choice, or if the goal/verb can be swapped and the sentence still stands (genre, not game), or if it names only obstacles;
+- Q3 rejected if a competent player would always take one side, or if the decision never returns;
+- Q4 absorbs the canon check (clone-minus-systems / form-era retread) and is now also in the README contract.
+
+The answers must be written as **facts, not moods** ("a sentence with a verb, an object and a cost is an answer; a sentence with adjectives is not"), they go in the notebook and the README (WHY_INTERACTIVE = Q1–Q3 concretely), and Q3 is wired into the probe ("if neither side of your Q3 decision ever loses, the decision is not real") and into the hard rules. The prior §3 duplicate of the canon question was removed, so the prompt gained a gate without gaining a second voice.
+
+**4. Launch path matches the contract.** `launch_challenge.py` gained `--prompt-only` (ship exactly one file into each workspace), `--prompt PATH` (use a held version without swapping the live file — previously a footgun), and `single-prompt --bare` (emit the prompt bytes unmodified, print the sha256). Verified: `PROMPT.md` byte-identical to the held version, both agents the same `brief_sha256`, manifest now records `files` + `brief_version`. Documented in `challenge/README.md` §6b.
+
+Size: 22.4 KB, one file. If the operator wants it leaner, the trimmable ~4 KB are the static-audit list (§4), the 2D painter's-stack row (§2) and the npm-3D recipe bullets (§1) — each can move judge-side without changing the contract.
+
+## 5c. Watched risk introduced by the §0 gate
+
+Q3 makes the tradeoff explicit ("what does each option cost, and why is neither always right"). R015's finding was that an *all-stakes* evaluative frame (goal + obstacle + tradeoff + risk + consequences, with nothing said about what is enjoyed) is a category attractor that produced the fire/ember cluster. v22 keeps the counterweights that made v21 hold — Q2(c) and the pleasure clause, "name what the player will *like*", the FUN_LINE contract, and the expanded fatigue list — so the frame names both stakes and enjoyment. **Watch item for the first v22 round:** does the explicit tradeoff language revive crisis/rationing shapes (C20/C21) that v21 suppressed? Falsifiable: if fire/grid/growth return above ~2 of 22 sessions under v22 while the fatigue note is unchanged, the §0 wording is the suspect and the fix is to phrase Q3 as a *decision* without the cost/dose wording.
+
 ## 6. Promotion gate (unchanged)
 
 v17 remains live. `challenge/BATTLE_PROMPT_v22.md` is a draft for operator review; on approval it becomes the R019 prompt — the field test would answer three falsifiable questions: (1) does the verification route raise the executed-probe count above ~50% of sessions; (2) does the "has this game already been made?" rule reduce clone/minus-systems deliveries without producing a new attractor; (3) where does the field relocate now that kite/wind and auctions are named — the watch item is which unnamed family arrives next (C15 law).

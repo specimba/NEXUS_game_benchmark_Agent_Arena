@@ -2,9 +2,19 @@
 
 You have one sustained session to build a complete, original, playable browser game. Push your environment as far as it goes — you are **not** limited to a small 2D game, and you are not limited to code: this benchmark has verified that modern 3D libraries, generated imagery, procedural geometry and material pipelines turn prompts into real game assets. Frontier models in 2026 routinely deliver WebGL/WebGPU generative visuals, real simulations, shader post-processing, and procedural worlds. **That capability is in your hands — use it.** Build something a person would genuinely be glad they played, and that looks like 2026, not 2013.
 
-Answer one question before you write any code: **why does this experience need to exist in interactive form?** If you can't answer it, you don't have a game yet.
+## 0. The four answers — write them before you write any code
 
-Before any code, write the **player's sentence** — one sentence answering: *what is the player trying to do, what can stop them, and what makes it fun?* If your sentence is about systems that run rather than choices a person makes, you don't have a game yet. **The game comes first: a correct simulation of something is not a game until a player has a goal, a real obstacle, and at least one decision with a tradeoff they can feel.** Build the smallest version of that loop first, in the ugliest possible graphics; make it fun; only then add the real numbers and the polish. **A game also needs a reason to be enjoyed** — something that delights, fascinates, amuses, moves, or intrigues. Name what the player will *like*, not only what can stop them; a sentence that names only obstacles describes a challenge, not yet a game.
+Write these four answers before any code — in your notebook and in the README (the README is what a judge reads first). Write them as facts about your game, not as moods or intentions: a sentence with a verb, an object and a cost is an answer; a sentence with adjectives is not. Each question has a **rejection test** — if your answer fails it, the fault is the concept, not the wording: change the game, then answer again.
+
+**Q1 — Why must this be played?** What does the player *do* that a viewer, a reader, or a passive simulation could not get? *Reject if:* the sentence still stands with "the player" replaced by "someone watching a recording of it".
+
+**Q2 — What is the player's sentence?** One sentence: what the player is trying to do, what can stop them, and what makes it fun. *Reject if:* (a) it describes a system that runs rather than a choice a person makes; (b) you can swap in a different goal and verb and the sentence still stands — that is a genre, not a game; (c) it names only obstacles and never a pleasure.
+
+**Q3 — What does the player decide, again and again, and what does each side cost?** Name the recurring decision, the price of both options, and why neither is always right. *Reject if:* a competent player would always pick one side (then it is a correct answer, not a decision), or the decision happens once in the run and never returns.
+
+**Q4 — Has this already been made?** Name the closest shipped commercial game, then name the one mechanic, perspective or decision you bring that it does not have. *Reject if:* your game is that game with the systems removed (theme kept, depth dropped), or a famous 2003–2015 title already executed the idea and you add nothing — that is a clone or a form-era retread, and it will be judged as one.
+
+**The game comes first.** A correct simulation of something is not a game until a player has a goal, a real obstacle, and at least one decision with a tradeoff they can feel. Build the smallest version of that loop first, in the ugliest possible graphics; make it fun; only then add the real numbers and the polish. **A game also needs a reason to be enjoyed** — something that delights, fascinates, amuses, moves, or intrigues. Name what the player will *like*, not only what can stop them.
 
 **Fun is a contract with minutes.** Know what is fun at **minute one** — the player must do something genuinely pleasant and legible within the first ~60 seconds, no difficulty cliff, no perfect-play demanded to reach content — and what keeps a real player wanting **one more run at minute ten** (no boredom plateau). Balance for a first-time player, not for yourself. If minute one is a wall or minute ten is work, you have a pacing defect, not a content problem — fix the pacing.
 
@@ -33,11 +43,26 @@ Put a one-line **ENV** report in your README: your class, what you attempted bey
 
 **The image route (all classes).** If your environment provides image generation, this channel is your **eyes**: make it carry the visual identity — key art, portraits, tiles, panels. Use **few** assets (1–8), inspect every one, 2–4 passes is normal. Two hard-won rules: (a) **check each asset for baked-in text or numbers** that will contradict your game state (a lot number, a price, a level count) and regenerate; (b) if the build must stay asset-free, generate a **reference**, look at it, re-author it procedurally, delete the file.
 
-**The verification route (all classes — read this twice).** You may be told you cannot run anything; usually you can run *something*:
+**The verification route (all classes — read this twice).** You need no extra tools, no companion file and no shell: write one small script yourself and let the package manager run it. `esbuild` is already installed inside Vite (otherwise `npm i -D esbuild`).
 
-- If `npm` works, you can execute your simulation: bundle the pure sim/probe with `esbuild` (it ships inside Vite) and run it on Node — a five-line script, `"probe": "node scripts/run-probe.mjs"`. **The build step is a test runner.**
-- If only `npm run build` works, hook the build (temporary plugin/config file) so the build executes the probe, read the output, then remove the hook and confirm the build is unchanged. Agents have done exactly that in these sandboxes.
-- If nothing executes: ship the probe and state plainly in the README that **you could not run it**. An unrun probe is a claim; a disclosure is honest.
+```js
+// scripts/probe.mjs — bundles your pure sim/probe and executes it on Node.
+import { build } from 'esbuild';
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+const out = join(mkdtempSync(join(tmpdir(), 'probe-')), 'probe.mjs');
+await build({ entryPoints: ['src/game/probe.ts'], outfile: out, bundle: true, format: 'esm', platform: 'node',
+              define: { 'import.meta.env.DEV': 'true' } });
+const { fails } = await import(out);
+if (fails !== 0) { console.error(`PROBE FAILED — ${fails} check(s)`); process.exit(1); }
+```
+
+- End your probe with `export const fails = results.filter(r => !r.ok).length;` and `console.log(JSON.stringify({ check, results, fails }))`. The runner exits non-zero when `fails` is not 0, so **a broken game fails your build loudly** instead of shipping quietly.
+- If you can run npm scripts: add `"probe": "node scripts/probe.mjs"` to `package.json` and run it.
+- If only the build runs: put it in the build chain — `"prebuild": "node scripts/probe.mjs"`, or `"build": "node scripts/probe.mjs && vite build"` — so the build you already have executes the probe; read the result in the build log. It changes nothing in the bundle.
+- Do not report a pass you did not see in that output.
+- If nothing executes at all: ship the probe and state plainly in the README that **you could not run it**. An unrun probe is a claim; a disclosure is honest.
 
 Immutable rules on all routes: every asset is bundled (no runtime network); sources every agent receives equally; receipts disclosed.
 
@@ -56,15 +81,13 @@ The honest constraint: some battle sandboxes give you **no browser and no way to
 
 If you commit to 3D/WebGPU, **finish it** — a broken ambitious build scores worse than a clean simple one, so scope what you can actually complete end-to-end on a fresh load with a real mouse.
 
-## 3. Originality — the second-idea rule, and the "has this already been made?" rule
+## 3. Originality — be ambitious, and choose your second idea
 
 **Be ambitious and trust your own taste.** Any genre, any camera, any stack, any form (action, strategy, simulation, narrative, puzzle, exploration, abstract, experimental — your call). A situation can equally be **physical** (something transforms), **social** (people or factions in tension), **economic** (scarcity, trade, debt), **relational** (a tie under stress), **systemic** (a world whose rules respond to you with consequences you can feel), **choice-driven** (a decision with consequences), or **narrative** (a story the player uncovers) — seven families, all coequal, and the physical one is only the default if you let it be.
 
 (Honest notes from many rounds — the field's default premises now include: **sonar / radio / frequency tuning**; **gravity-well piloting**; **tangible-craft work** (forging, glass, cranes); **wildfire / ember / fire-response**; **energy-grid / infrastructure balance**; **root / sprout / mycelium growth networks**; **lighthouse / beacon / light-as-a-resource**; **single-axis wind flight** (kite line, balloon altitude, seed-glide); **auctions and appraisals** (hidden value, a purse, a hammer). The umbrella behind most repeats is one shape: *a threat or a meter advances while you ration a scarce resource under a clock* — it can wear fire, a power grid, a flight plan or a tuxedo. None of these are banned, and a great game in any of them can still win, but they have flooded recent rounds — including near-identical games shipped by different models in one battle — and the operator is visibly tired of them. If your first instinct sits inside that umbrella, assume your second idea is more original.)
 
-So: before you write code, draft **two candidate premises** in your notebook. If both sit under the umbrella shape (spreading threat / sliding meter / rationed spend / hidden-value bidding), discard both and find a third in a family you have not shipped recently. One line in the README: which families your candidates touched and why you shipped the one you did (**PREMISE_NOTE**).
-
-And ask one more question before committing: **has this game already been made?** Name the closest shipped commercial game you can think of. If your concept is that game with the systems removed — theme kept, depth dropped — it is a clone, not an original, and it will be judged as one. If a famous 2003–2015 game already executed your idea and you bring nothing to it, it will be judged as a form-era failure. Bring a mechanic, a perspective or a decision the older game did not have — or take the other premise.
+So: before you write code, draft **two candidate premises** in your notebook. If both sit under the umbrella shape (spreading threat / sliding meter / rationed spend / hidden-value bidding), discard both and find a third in a family you have not shipped recently. One line in the README: which families your candidates touched and why you shipped the one you did (**PREMISE_NOTE**) — and Q4's canon check applies to the premise you ship.
 
 ## 4. Build it like an engineer, not a scripter
 
@@ -83,7 +106,7 @@ Then hold these invariants while you build:
 **Write the probe — then run it if you possibly can** (see §1, verification route). A good probe plays your game like a naive first-time player, through the real rules, and asserts:
 
 - **the first goal is reachable** by a policy that does not know the answers;
-- **a win is reachable**, and **failure is reachable by more than one cause** (greed must fail, timidity must fail) — one loss path means a wall, not a design;
+- **a win is reachable**, and **failure is reachable by more than one cause** (greed must fail, timidity must fail) — one loss path means a wall, not a design, and if neither side of your Q3 decision ever loses, the decision is not real;
 - **every level is reachable using only the mechanics unlocked at that level** — an early level that becomes unwinnable when a new element appears is a real defect this benchmark has shipped;
 - **no dead state** where no input makes progress; **restart truly resets**; **identical seeds are deterministic**;
 - and if your game has a camera and a mouse, that **the control mapping is sane** (no inverted axes, no unreachable targets, the hero visible and in frame at every camera state).
@@ -109,6 +132,6 @@ If your sim honours invariants 2 and 3, write and run a tiny self-test of its co
 
 **Run this list once before you deliver:** fresh load → title in <10 s, no console-error loop · full loop including a real fail state and a real ending · real mouse: controls and aim work, no soft-lock, axes not inverted, hero in frame · every level reachable · pause freezes everything; mute kills audio within one frame · resize mid-play safe · no full-screen flash/whiteout that fails to decay · pacing: minute one is fun and reachable, minute ten still wants one more run · if you built the ambitious rendering path (3D / WebGPU / shaders), verify it **end-to-end on a fresh load** — if it breaks, deliver the clean fallback instead · if you generated assets, you looked at every one (and checked them for text that contradicts the game) · if you ran a probe, its output is in the README; if you could not run it, that is written down too.
 
-**Deliverables:** the runnable game; a short README (TRACK line; **ENV** line; **PREMISE_NOTE** line; how to run; controls; stack; receipts — what you generated and with which route; verification line — what actually executed; and short **DESIGN_PILLARS** / **DIRECTOR_STATEMENT** (state the look: light, palette, material language) / **WHY_INTERACTIVE** (name the recurring decision and the tension that makes it interesting) / **FUN_LINE** (what is fun at minute one, and what pulls one more run at minute ten) / **HONEST_SELF_ASSESSMENT** (what you actually play-tested or probed, and what broke)); optionally a `design_notebook.md` — it must contain your two candidate premises (§3).
+**Deliverables:** the runnable game; a short README (TRACK line; **ENV** line; **PREMISE_NOTE** line; how to run; controls; stack; receipts — what you generated and with which route; verification line — what actually executed; and short **DESIGN_PILLARS** / **DIRECTOR_STATEMENT** (state the look: light, palette, material language) / **WHY_INTERACTIVE** (your Q1–Q3 answers, concretely) / **FUN_LINE** (what is fun at minute one, and what pulls one more run at minute ten) / **HONEST_SELF_ASSESSMENT** (what you actually play-tested or probed, and what broke)); and, if you keep a `design_notebook.md`, it must carry the four answers (§0) and your two candidate premises (§3).
 
 Deliver a complete, polished, modern game you'd actually want to play. Good luck.
