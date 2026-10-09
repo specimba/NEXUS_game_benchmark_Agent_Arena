@@ -40,7 +40,7 @@ EOF
 cd "$WORK"
 if [ ! -d node_modules/esbuild ]; then
   note "installing esbuild (needed to bundle TS probes; Vite 7 projects include it; Vite 8 projects do not)…"
-  if ! npm install --no-audit --no-fund --silent esbuild >/dev/null 2>&1; then
+  if ! npm install --ignore-scripts --no-audit --no-fund --silent esbuild >/dev/null 2>&1; then
     note "SKIP: could not install esbuild (offline?). Self-test inconclusive — not a pass."
     exit 3
   fi

@@ -175,17 +175,18 @@ def cmd_single_prompt(args) -> None:
     brief = resolve_brief(getattr(args, "prompt", None))
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
-    brief_text = brief.read_text(encoding="utf-8")
     print(f"[single-prompt] source: {brief} — {prompt_version_line(brief)}")
-    bare = getattr(args, "bare", False)
-    if bare:
-        # Exact bytes: paste the file as-is. No wrapper, no companion file (v22 contract).
+    if getattr(args, "bare", False):
+        # Exact bytes: copy the file as-is. No text decoding, so no newline translation
+        # (a CRLF-saved brief stays CRLF) and no wrapper (v22 contract).
         dest = out / "PROMPT.md"
-        dest.write_text(brief_text, encoding="utf-8")
-        digest = hashlib.sha256(brief_text.encode("utf-8")).hexdigest()
-        print(f"[single-prompt] wrote {dest} ({len(brief_text)} chars, sha256={digest[:16]}…) — paste these exact bytes.")
+        shutil.copyfile(brief, dest)
+        data = dest.read_bytes()
+        digest = hashlib.sha256(data).hexdigest()
+        print(f"[single-prompt] wrote {dest} ({len(data)} bytes, sha256={digest[:16]}…) — paste these exact bytes.")
         print("[single-prompt] nothing else is needed: no spec file, no self-QA file, no companion guide.")
     else:
+        brief_text = brief.read_text(encoding="utf-8")
         # Legacy wrapper for prompt+spec packages (v20 and earlier).
         prompt = (
             "# NEXUS AGENT ARENA — AGENT CHALLENGE (single self-contained prompt)\n"
