@@ -43,7 +43,7 @@ Put a one-line **ENV** report in your README: your class, what you attempted bey
 
 **The image route (all classes).** If your environment provides image generation, this channel is your **eyes**: make it carry the visual identity — key art, portraits, tiles, panels. Use **few** assets (1–8), inspect every one, 2–4 passes is normal. Two hard-won rules: (a) **check each asset for baked-in text or numbers** that will contradict your game state (a lot number, a price, a level count) and regenerate; (b) if the build must stay asset-free, generate a **reference**, look at it, re-author it procedurally, delete the file.
 
-**The verification route (all classes — read this twice).** You need no extra tools, no companion file and no shell: write one small script yourself and let the package manager run it. `esbuild` is already installed inside Vite (otherwise `npm i -D esbuild`).
+**The verification route (all classes — read this twice).** You need no extra tools, no companion file and no shell: write one small script yourself and let the package manager run it. Install the bundler once with `npm i -D esbuild` — Vite 7 happens to bring it along, Vite 8 does not, and the script below fails without it.
 
 ```js
 // scripts/probe.mjs — bundles your pure sim/probe and executes it on Node.

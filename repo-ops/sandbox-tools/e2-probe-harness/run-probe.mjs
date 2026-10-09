@@ -73,7 +73,7 @@ const { esbuild, how, attempts } = loadEsbuild();
 if (!esbuild) {
   console.error('[probe-harness] esbuild not found — cannot execute the probe.');
   console.error('  Tried: ' + attempts.join(' | '));
-  console.error('  Fix: `npm i -D esbuild` (Vite projects already have it), or run inside the project.');
+  console.error('  Fix: `npm i -D esbuild` (Vite 7 projects already have it; Vite 8 does not), or run inside the project.');
   process.exit(2);
 }
 

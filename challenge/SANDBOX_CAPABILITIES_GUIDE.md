@@ -40,7 +40,7 @@ If the benchmark ever wants *Blender-authored* meshes in the battle class, they 
 
 The largest measurable quality lever found so far is not a toolchain — it is **execution**. In log 17, 21 of 22 sessions shipped a self-test they could not run; the one session that hooked its build step to execute its probe found a real balance defect (a 1/24 win rate) and delivered the round's best-received game.
 
-**The harness:** `repo-ops/sandbox-tools/e2-probe-harness/` (self-test green). It bundles a TypeScript probe with `esbuild` — which ships inside Vite, so no new dependency — stubs the few browser globals a guarded probe may touch, runs it on Node, and reads one JSON report line. Exit codes: `0` pass · `1` a check failed · `2` could not execute/report (**never** a pass). Copy `run-probe.mjs` into `scripts/` and add `"probe": "node scripts/run-probe.mjs"`.
+**The harness:** `repo-ops/sandbox-tools/e2-probe-harness/` (self-test green). It bundles a TypeScript probe with `esbuild` — a Vite 7 dependency that Vite 8 no longer brings, so one `npm i -D esbuild` may be needed — stubs the few browser globals a guarded probe may touch, runs it on Node, and reads one JSON report line. Exit codes: `0` pass · `1` a check failed · `2` could not execute/report (**never** a pass). Copy `run-probe.mjs` into `scripts/` and add `"probe": "node scripts/run-probe.mjs"`.
 
 **The three tiers** (v22 §1): (1) shell available → run it directly; (2) npm available → bundle with esbuild and run on Node, or hook the build so the build itself executes the probe (the round-018 method — remove the hook afterwards and confirm the build is unchanged); (3) nothing executes → ship the probe and **state plainly that it was not run**. An unrun probe is a claim; a disclosure is honest.
 

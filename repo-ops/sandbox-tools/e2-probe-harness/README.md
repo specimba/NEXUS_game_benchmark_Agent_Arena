@@ -18,7 +18,7 @@ Battle agents run **E2/E3-class** sandboxes:
 
 So the agent can write a headless probe (v21/v22 §4) and **cannot run it**. "The probe passes" then becomes an unverifiable claim — which is exactly the failure mode the benchmark's honesty rule exists to prevent.
 
-The fix: **the build step can be a test runner.** If `npm` runs at all, `esbuild` is available (it ships with Vite), and Node is what executes the build.
+The fix: **the build step can be a test runner.** If `npm` runs at all, `esbuild` can be installed (`npm i -D esbuild`; Vite 7 brings it along, Vite 8 does not), and Node is what executes the build.
 
 ## 1b. Relationship to the battle prompt (v22)
 
@@ -99,4 +99,4 @@ example/silent-probe.ts    fixture: human logs only → harness must exit 2
 
 ## 6. Why the harness is this small
 
-It never imports the game's UI layer, never spawns a browser, never installs anything beyond what a Vite project already has. It bundles one entry with `esbuild` (`platform: node`), stubs the handful of browser globals a guarded probe may touch, executes the bundle, and reads the JSON line. When bundling fails because the probe reaches into DOM/canvas/audio, that is *correct behaviour*: the harness reports exit 2 instead of pretending — and it is a signal that the simulation is not yet separable from the renderer (prompt invariants 2 & 3).
+It never imports the game's UI layer, never spawns a browser, never installs anything itself; it needs `esbuild` resolvable from the project (`npm i -D esbuild` if it is missing). It bundles one entry with `esbuild` (`platform: node`), stubs the handful of browser globals a guarded probe may touch, executes the bundle, and reads the JSON line. When bundling fails because the probe reaches into DOM/canvas/audio, that is *correct behaviour*: the harness reports exit 2 instead of pretending — and it is a signal that the simulation is not yet separable from the renderer (prompt invariants 2 & 3).
