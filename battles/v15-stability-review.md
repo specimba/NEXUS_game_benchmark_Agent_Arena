@@ -24,7 +24,7 @@
 
 ## 1. Failure-mode extraction (the specification, from test data)
 
-Source: `ARENAaiAGENTandGAMEbenchNEXUSfreecreationlogs10.txt` (Round-010 controlled A/B: v13 cautious vs LEAN, Grok 4.6 ×3+3 / Sonnet 5 ×2+3; DeepSeek V4 Vision failed to start and was dropped). Prior-round data cited where the operator's experiment history is the evidence base.
+Source: `logs/game-log-10.txt` (Round-010 controlled A/B: v13 cautious vs LEAN, Grok 4.6 ×3+3 / Sonnet 5 ×2+3; DeepSeek V4 Vision failed to start and was dropped). Prior-round data cited where the operator's experiment history is the evidence base.
 
 | FM | Failure mode | Evidence (verbatim / measured) | Condition | Gap area |
 |---|---|---|---|---|

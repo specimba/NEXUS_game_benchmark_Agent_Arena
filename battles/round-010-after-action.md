@@ -1,7 +1,7 @@
 # Battle Round 010 — After-Action Record (controlled experiment: v13 vs LEAN)
 
 **Status:** controlled experiment, not a scored battle round. The decisive test of the [`fable-showcase-deep-dive.md`](fable-showcase-deep-dive.md) hypothesis.
-**Source log:** `ARENAaiAGENTandGAMEbenchNEXUSfreecreationlogs10.txt`
+**Source log:** `logs/game-log-10.txt`
 **Operator:** specimba
 **Recorded by benchmark:** 2026-08-24 (Ankara)
 **Planned:** Grok 4.6 + DeepSeek V4 Vision × {v13 cautious, LEAN}, 4 battles / 8 outputs.
@@ -80,7 +80,7 @@ Run v15 head-to-head with v13 on **Grok 4.6** (the one visually-capable model co
 | `battles/fable-showcase-deep-dive.md` | forward-pointer: ambition-claim CONFIRMED, apparatus-"misdiagnosis"-claim REFUTED by Round 010 |
 | `challenge/BATTLE_PROMPT_v15_HYBRID.md` | ambition-first + convergence-aware draft (LEAN tone + C14/C16 guards), for the next test |
 | `README.md` | Round 010 actual + Round 011 plan (v15 head-to-head on Grok 4.6) |
-| `ARENAaiAGENTandGAMEbenchNEXUSfreecreationlogs10.txt` | brought into the branch from the operator's `01a01d22` upload |
+| `logs/game-log-10.txt` | brought into the branch from the operator's `01a01d22` upload |
 
 ## 9. Bottom line for the operator
 

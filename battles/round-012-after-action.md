@@ -1,7 +1,7 @@
 # Battle Round 012 — After-Action Record (v16's first field test)
 
 **Status:** full battle round under **v16** (the prompt built from the operator's five Q&A decisions).
-**Source log:** `ARENAaiAGENTandGAMEbenchNEXUSfreecreationlogs12.txt` (12 sessions, 6 battles)
+**Source log:** `logs/game-log-12.txt` (12 sessions, 6 battles)
 **Operator:** specimba
 **Recorded by benchmark:** 2026-08-24 (Ankara)
 
@@ -56,7 +56,7 @@ On the "ship" priming theory, both ways:
 | `benchmark/06-anti-bias-anti-gaming.md` | **C18 registered** (spaceship + gravity/orbital); post-R012 note (soft steers hold for named clusters; new clusters still arrive; "ship"-theory analysis) |
 | `expert_team/CONSENSUS.md` | Round 012 expert-swarm analysis (all five roles) |
 | `README.md` | Round 012 row + Round 013 plan (pending operator Q&A) |
-| `ARENAaiAGENTandGAMEbenchNEXUSfreecreationlogs12.txt` | brought in from master |
+| `logs/game-log-12.txt` | brought in from master |
 
 ## 6. Queued for operator decision (Q&A follows)
 

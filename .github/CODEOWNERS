@@ -1,0 +1,12 @@
+# Default owners for the repository
+*       @specimba
+
+# Benchmark control plane
+/benchmark/ops/           @specimba
+/benchmark/tests/         @specimba
+
+# Challenge / production side
+/challenge/               @specimba
+
+# Sandbox tools
+/repo-ops/sandbox-tools/  @specimba

@@ -1,6 +1,6 @@
 # 03 — GameXpert-Bench: How Far Are Coding Agents from Expert Game Development?
 
-**Status:** verified live (arXiv abs page fetched 2026-09-03; matches uploaded `gameBENCHpapersdoc1.txt`).
+**Status:** verified live (arXiv abs page fetched 2026-09-03; matches uploaded `game-bench-papers.txt`).
 
 ## Citation facts
 

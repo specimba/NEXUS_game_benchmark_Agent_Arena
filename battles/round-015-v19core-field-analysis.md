@@ -1,6 +1,6 @@
 # Round 015 (v19 CORE field test) — deep read of the operator's comments + the ember/fire investigation
 
-**Source:** `ARENAaiAGENTandGAMEbenchNEXUSfreecreationlogs14.txt` (12 sessions, 6 battles, all under **v19 CORE**)
+**Source:** `logs/game-log-14.txt` (12 sessions, 6 battles, all under **v19 CORE**)
 **Operator:** specimba · **Recorded by benchmark:** 2026-09-06 (Ankara)
 **Trigger:** operator instruction — *"give proper deep search attention to my comments"*, and the closing demand of the round: *"the important point is where that 'ember', 'fire' like bias coming from — we have to deep investigate it before we move on more, looks like prompt has faults."*
 **Status:** investigation complete; v19.1 proposals are **held** (nothing promoted, nothing live changed).

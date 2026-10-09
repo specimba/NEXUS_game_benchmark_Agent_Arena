@@ -16,3 +16,9 @@ dist/
 
 # Reference experiment logs (kept locally, fetched from master when needed)
 .experiments/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp

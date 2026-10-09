@@ -1,6 +1,6 @@
 # Logs 15–16 revision notes — v21 single-prompt build (2026-09-07)
 
-**Source:** `ARENAaiAGENTandGAMEbenchNEXUSfreecreationlogs15.txt` (R016, v20 first field test, 11 sessions, 6 comments) + `ARENAaiAGENTandGAMEbenchNEXUSfreecreationlogs16.txt` (R017, v20 second field test, Option A/B format, 6 comments)
+**Source:** `logs/game-log-15.txt` (R016, v20 first field test, 11 sessions, 6 comments) + `logs/game-log-16.txt` (R017, v20 second field test, Option A/B format, 6 comments)
 **Trigger (operator):** single copy-paste prompt with whole coverage inside; no file transfers; comments must be converted into prompt improvements; "0 success in using engine/Blender assets… prompt still not creating impactful graphical tries… Fable 5.1 cardboard… we need proper revisions now."
 **Product:** `challenge/BATTLE_PROMPT_v21.md` — decision record in blueprint §H.
 

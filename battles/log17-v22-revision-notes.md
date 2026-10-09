@@ -1,6 +1,6 @@
 # Log 17 revision notes — v22 build (2026-09-21)
 
-**Source:** `ARENAaiAGENTandGAMEbenchNEXUSfreecreationlogs17.txt` — R018, the v21 single-prompt field test: 22 sessions, 11 battles, 11 operator comments.
+**Source:** `logs/game-log-17.txt` — R018, the v21 single-prompt field test: 22 sessions, 11 battles, 11 operator comments.
 **Trigger (operator):** *"Be grounded, and let's continue with logs. 17 new reviews and examples are being created to improve our prompts and the benchmark's capabilities. For example, we can see that they do not use the engines we expected and planned — Godot or Blender — but there are still good graphical or game-mechanic approaches we need to distill to better combine with old logs and knowledge."*
 **Products:** `challenge/BATTLE_PROMPT_v22.md` (draft, not live) · `battles/round-018-v21-field-analysis.md` (evidence) · `battles/log17-approach-distillation.md` (the distill ledger) · `repo-ops/sandbox-tools/e2-probe-harness/` (verified capability) · registry + taxonomy + README updates.
 **Live prompt:** unchanged — `challenge/BATTLE_PROMPT.md` stays v17 until the operator verdict. Nothing here is promoted.

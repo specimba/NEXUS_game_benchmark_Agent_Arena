@@ -14,7 +14,7 @@ limitations, and a mapping to concrete NEXUS files/actions.
 | [05](05-synthesis-nexus-actions.md) | Synthesis → NEXUS actions | What NEXUS adopts now vs next epoch, mapped to files in this repository. |
 
 The four primary papers were re-fetched and verified from arXiv.org on **2026-09-03**
-(the uploaded `gameBENCHpapersdoc1.txt` records match the primary pages). PDFs are not
+(the uploaded `game-bench-papers.txt` records match the primary pages). PDFs are not
 vendored into the repo; the canonical sources are linked from each brief
 (arXiv abs/PDF/HTML, Hugging Face papers pages, project pages, GitHub repos).
 

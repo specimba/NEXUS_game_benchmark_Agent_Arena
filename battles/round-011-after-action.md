@@ -1,7 +1,7 @@
 # Battle Round 011 — After-Action Record (v15.1 validation + the restrictions question)
 
 **Status:** controlled validation round (v13 vs v15.1 per operator-approved change log) + strategic pivot point.
-**Source log:** `ARENAaiAGENTandGAMEbenchNEXUSfreecreationlogs11.txt` (14 sessions: 8 under v13, 6 under v15.1)
+**Source log:** `logs/game-log-11.txt` (14 sessions: 8 under v13, 6 under v15.1)
 **Operator:** specimba
 **Recorded by benchmark:** 2026-08-24 (Ankara)
 
@@ -43,6 +43,6 @@
 | `battles/regime-deep-dive.md` | the strategic answer to the operator's restrictions question (the main deliverable of this pass) |
 | `benchmark/06-anti-bias-anti-gaming.md` | C17 registered; post-R011 note (guards rename convergence; self-talk evidence) |
 | `README.md` | Round 011 row + Round 012 plan (pending operator strategic decisions) |
-| `ARENAaiAGENTandGAMEbenchNEXUSfreecreationlogs11.txt` | brought in from the operator's master-branch upload |
+| `logs/game-log-11.txt` | brought in from the operator's master-branch upload |
 
 **Deliberately NOT done this pass:** applying the M-2/M-4 pre-committed knobs (v15.2) — the operator is questioning the framework itself; knob-turning inside a framework under review would be the surface-sweep behavior they explicitly rejected.
