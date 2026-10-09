@@ -1,5 +1,10 @@
 # NEXUS game benchmark Agent Arena — One-Shot Game Development Agent Creation Benchmark
 
+![License](https://img.shields.io/github/license/specimba/NEXUS_game_benchmark_Agent_Arena)
+![Python](https://img.shields.io/badge/python-3.11+-blue)
+![Status](https://img.shields.io/badge/status-active-success)
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)
+
 A rigorous benchmark that evaluates an AI agent's ability to **create a complete, original, and compelling game in a single sustained development session**.
 
 The agent is treated as a **game developer, not as a player, contestant, or gameplay evaluator**. Its task is to conceive, implement, polish, and present a playable game. The benchmark evaluates the quality of the game and the agent's development process — not its ability to achieve a score within a pre-existing game.
