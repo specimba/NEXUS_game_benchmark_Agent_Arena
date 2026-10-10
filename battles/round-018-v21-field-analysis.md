@@ -24,7 +24,7 @@
 | B10 | solar-pro4 | (telescope-operations game — **log truncated**, no delivery summary; operator: *"nonsense… bullshit"*) | unknown (E1/E2/E3 undeclared — evidence gap) | muse-spark-1.3-xhigh | **TABLE FOR TROUBLE** — seat six feuding animal gourmets across three candlelit nights; hidden feuds and crushes | L11490 *"muse made static table thing game with image creations at least it is game, other nonsense model is created bullshit"* → muse wins by default |
 | B11 | claude-opus-5 | **The Provenance Room** — closed-door antiquities sale; 4 viewing minutes, 45% forgeries, then the auction | three.js code-modelled artifacts (Catmull-Rom lathes, bezier extrusion, seeded-noise displacement), 512² canvas fbm albedo/roughness maps, PMREM, 2048² shadow key light with a 6° raking mode, 365 nm UV lamp; **probe executed through a build hook** | muse-spark-1.3-xhigh | **ECHO VAULT** — time-loop heist; your past runs anchor as ghosts holding doors | L12206 *"opus made very interesting bidding game with investigation sauce with 3d random created artifact mindset interest, muse also created good game mechanics and implementation but very basic 2d graphics and decreased a lot interest with that messy visuals"* → opus wins |
 
-**Pool:** 19 distinct model identities across 22 sessions (qwen3.7-max, mimo-v2.5-pro and muse-spark-1.3-xhigh each run twice); 11 pairwise duels, each decided by a single operator line — no ties. Every battle was decided by the operator in one line; there is no tie.
+**Pool:** 19 distinct model identities across 22 sessions (qwen3.7-max, mimo-v2.5-pro and muse-spark-1.3-xhigh each run twice); 11 pairwise duels, each resolved by a single operator line — 9 decisive wins and **2 battles marked "both bad" (B5, B8), recorded as ties / no winner**, since the operator's own words (*"both get marked bad"*, *"both marked bad"*) establish no preference between the two deliveries. No battle needed a second comment; the pairwise contract supports ties, and these two are kept as such rather than invented into wins.
 
 ---
 
@@ -34,7 +34,7 @@
 |---|---|---|---|---|
 | Sessions / battles | 11 / 6 | 12 / 6 | **22 / 11** | first full-size run of a single-paste prompt |
 | Fire/ember/wildfire games | 6 | 4+ | **0** | **C21 soft-steer HELD** — and grid (C20), growth (C19), lighthouse (C23) are 0 too. The only fire words in the whole log are the prompt's own warning and one notebook line where an agent *rejected* the umbrella (L7105 ✕). |
-| "unfinished / to infinity" complaints | 2 battles | 2 | **0** | **ship-complete rule HELD** — 22/22 sessions delivered a closed build with a delivery summary |
+| "unfinished / to infinity" complaints | 2 battles | 2 | **0** | **ship-complete rule HELD** — 21/22 sessions delivered a closed build with a delivery summary; the 22nd (B10 solar-pro4) is truncated in the log capture and counts as **unverified, not closed** (§2 C10) |
 | Audio complaints | 0 | 1 (*"ear blasting"*) | **0** | audio-defaults clause held (no round-17-style blast) |
 | Blender / Godot / engine tooling | 0 | 0 | **0 (third consecutive round)** | see §4 — this is a *sandbox property*, not an intent failure |
 | three.js sessions | ~4 | ~4 | **11 of 22** | npm-3D is now a mainstream route, not an outlier |
@@ -46,10 +46,10 @@
 **What worked (the three wins that matter):**
 
 1. **The fatigue note.** v21 named fire/grid/growth/lighthouse and the operations-crisis umbrella; the field produced **zero** of them. This is the cleanest soft-steer success since C14 held in R012 — and, per the C15 law, it relocated convergence rather than removing it (§3).
-2. **Ship-complete.** Not one comment about unfinished work. Three logs ago this was the operator's dominant complaint; the loop-closure rule plus "a closed small loop beats an open big one" produced 22 closed builds, including the round's only two near-Steam verdicts (B7 winner; B11 winner).
+2. **Ship-complete.** Not one comment about unfinished work. Three logs ago this was the operator's dominant complaint; the loop-closure rule plus "a closed small loop beats an open big one" produced 21 closed builds — plus one session (B10) truncated in the log capture, which is recorded as unverified rather than counted — including the round's only two near-Steam verdicts (B7 winner; B11 winner).
 3. **The look checklist, applied in 3D.** For the first time, the *default* for three.js sessions was real lights + soft shadows + tone mapping + fog + palette tokens. Four sessions went past C13's remedy rows (custom GLSL, custom composer, bloom with a Plain toggle, canvas-generated albedo/roughness) — see the ledger in `battles/log17-approach-distillation.md`.
 
-**What still failed:** legibility and control in 3D (3 sessions called unplayable or meaningless), derivative concepts (3 sessions named against an existing game), and — above all — *verification*: 21 of 22 probes were written to be honest evidence and never executed.
+**What still failed:** legibility and control in 3D (3 sessions called unplayable or meaningless), derivative concepts (3 sessions named against an existing game), and — above all — *verification*: 20 of 22 sessions shipped a self-test they never ran (one executed it — B11; the truncated B10 session left no probe evidence).
 
 ---
 
@@ -94,7 +94,7 @@ Read: the round's best-received game is **code-modelled 3D with zero external ar
 
 **3.1 The steered families went to zero; a new one arrived (C24).**
 
-**Single-axis air/wind negotiation** — 4 sessions, 3 model identities, 4 different battles, no prompt vocabulary anywhere:
+**Single-axis air/wind negotiation** — 4 sessions, 4 distinct model identities (three of them the deepseek family), 4 different battles, no prompt vocabulary anywhere:
 
 | Session | Game | The one axis |
 |---|---|---|
@@ -107,7 +107,7 @@ Adjacent: qwen3.8-27b's TIDEGUN (mortar duel where mid-flight wind gusts decide 
 
 **3.2 The valuation cluster (C25).** Three sessions in three battles: fable-5.1-low's container auction (B7 winner), opus-5-high's curiosities auction (B9 winner), opus-5's antiquities sale (B11 winner). Two of the three are the **opus-5 line**, i.e. the same per-family signature as opus5-max's glassblowing — a model pet concept, not a prompt artefact. Registered as **C25**.
 
-**3.3 Flock funnelling (C26, provisional).** log16's grok-4.6 sheep idea (broken, sheep invisible) and log17's opus-4-8-thinking Meadowfall are the same concept two rounds apart. Cross-round and below the two-model-same-round bar — logged provisionally, to be watched in R019.
+**3.3 Flock funnelling (watch item — provisional, unnumbered).** log16's grok-4.6 sheep idea (broken, sheep invisible) and log17's opus-4-8-thinking Meadowfall are the same concept two rounds apart. Cross-round and below the two-model-same-round registration bar, so it stays an **unnumbered watch item** (no C-identifier) until a qualifying same-round observation appears — logged provisionally, to be watched in R019.
 
 **3.4 Recurrences.** C10 (sci-fi optics/spectrum puzzle, Round 002) returned as PRISMA — the first return of a Round-002 cluster. C11 ("novel-verb + procedural canvas + WebAudio, no assets") is no longer a *cluster*, it is the **default execution mode** for 2D sessions (8 of 22) — with one new twist that the operator rates above pure C11: a generated key-art layer under procedural gameplay (B6 *played to the end*, B10 *"at least it is game"*). C13 (retro visuals) still lands in 3 sessions (gemini's cardboard boxes, mimo's LUMEN, muse's "messy visuals").
 
@@ -136,7 +136,7 @@ Adjacent: qwen3.8-27b's TIDEGUN (mortar duel where mid-flight wind gusts decide 
 
 > `three` (npm) + **code-modelled geometry** (lathes, extrusions, parametric primitives, seeded-noise displacement) + **canvas-generated material maps** + hand-written GLSL for the one effect that matters + hand-rolled physics + the **image channel** for authored identity — verified by a **probe that the build step executes**.
 
-That is a complete replacement for what Blender (mesh/texture authoring) and Godot (scene graph + physics + editor) were supposed to provide, and two sessions demonstrated every piece of it end-to-end (B11 opus-5, B9 opus-5-high; B7 fable-low for the asset half).
+That is a complete replacement for what Blender (mesh/texture authoring) and Godot (scene graph + physics + editor) were supposed to provide. No single session demonstrated every piece: the components were proven **across separate sessions** — B11 opus-5 demonstrated code-modelled geometry + canvas material maps + the executed probe (with zero generated art), B9 opus-5-high and B4 fable-high demonstrated the full generated-art pipeline (with no executed probe; B9's was written but unrun), and B7 fable-low demonstrated the asset half of the route.
 
 **Two operator decisions this analysis puts on the table (not shipped, drafts only):**
 
@@ -145,7 +145,7 @@ That is a complete replacement for what Blender (mesh/texture authoring) and God
 
 ---
 
-## 5. Verification ledger — 21 of 22 probes never ran
+## 5. Verification ledger — 20 of 22 probes never ran
 
 | Session | Probe written | Probe executed | What the agent said |
 |---|---|---|---|
@@ -164,7 +164,7 @@ Honest bounds: one observation is not proof of causation, and B11's agent was al
 |---|---|---|
 | **CONTROL-LEGIBILITY** (3D) | glm-5.2-max's kite (uncontrollable mouse coupling), deepseek-max's kite ("vision is bugged"), gemini's salvage (controls meaningless) | Severity Major→Blocker per §4.1; record camera framing, near-plane clipping, and input→response mapping explicitly; a 3D build that was never render-verified by its author is presumptively at risk |
 | **LEVEL-N-SOLVABILITY** | opus-4-8-thinking's Meadowfall: level 2 unwinnable once the wolf exists (L8444) | Extends CEIL-5's "early level-2/3 cliff" with a *proof obligation*: reachability must be asserted per level in the probe, or the level is unverified |
-| **NOVELTY-COLLISION** | 3 deliveries named against existing games — *Ghost Master* (2003, muse B5), *Club Penguin*-era mortar flash game (qwen3.8 B8), *Dave the Diver* clone (deepseek B4) | The registry's CLICHÉ-CLUSTER row is no longer only about *our* rounds: an idea a shipped commercial game already executes better is a novelty cap trigger, recorded with the named reference |
+| **NOVELTY-COLLISION** | 3 deliveries named against existing games — *Ghost Master* (2003, muse B5), *Club Penguin*-era mortar flash game (qwen3.8 B8), *Dave the Diver* clone (deepseek B4) | The registry's CLICHÉ-CLUSTER row is no longer only about *our* rounds: an idea a shipped commercial game already executes better receives the §2.7 soft-note treatment (V0/V1 4–5 require explicit evidence the delivery transforms beyond the named reference), recorded with the named reference |
 | **EVIDENCE-GAP (ops)** | solar-pro4's session truncated (L11106 `Show More`) — verdict without artifact | Round hygiene: the log capture must retain the delivery summary; a truncated session cannot be scored beyond the operator's line, and the failure cannot be diagnosed |
 
 ---

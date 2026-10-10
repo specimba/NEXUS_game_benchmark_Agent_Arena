@@ -22,7 +22,7 @@
 
 ## 2. What "engine work" means in the battle class (and why it is not a downgrade)
 
-Measured from log 17: `three.js` in 10 of 22 sessions; Canvas-2D in 8; Babylon/Phaser/Pixi/PlayCanvas and every JS physics package in 0; all physics hand-rolled (verlet, boids, ballistic solvers, tether springs). The complete working pipeline is:
+Measured from log 17 (enumeration in `battles/round-018-v21-field-analysis.md` §4): `three.js` in **11 of 22** sessions; Canvas-2D/DOM-2D in **9 of 22** (2 unclassified: one truncated session, one hybrid text+CSS); Babylon/Phaser/Pixi/PlayCanvas and every JS physics package in 0; all physics hand-rolled (verlet, boids, ballistic solvers, tether springs). The complete working pipeline is:
 
 | What Blender/Godot would give | The E2 substitute (verified in real deliveries) |
 |---|---|
@@ -38,7 +38,7 @@ If the benchmark ever wants *Blender-authored* meshes in the battle class, they 
 
 ## 3. Verification without a browser (the round-018 unlock)
 
-The largest measurable quality lever found so far is not a toolchain — it is **execution**. In log 17, 21 of 22 sessions shipped a self-test they could not run; the one session that hooked its build step to execute its probe found a real balance defect (a 1/24 win rate) and delivered the round's best-received game.
+The largest measurable quality lever found so far is not a toolchain — it is **execution**. In log 17, 20 of 22 sessions shipped a self-test they never ran; the one session that hooked its build step to execute its probe found a real balance defect (a 1/24 win rate) and delivered the round's best-received game (the 22nd session, B10, was truncated in the capture with no probe evidence).
 
 **The harness:** `repo-ops/sandbox-tools/e2-probe-harness/` (self-test green). It bundles a TypeScript probe with `esbuild` — a Vite 7 dependency that Vite 8 no longer brings, so one `npm i -D esbuild` may be needed — stubs the few browser globals a guarded probe may touch, runs it on Node, and reads one JSON report line. Exit codes: `0` pass · `1` a check failed · `2` could not execute/report (**never** a pass). Copy `run-probe.mjs` into `scripts/` and add `"probe": "node scripts/run-probe.mjs"`.
 

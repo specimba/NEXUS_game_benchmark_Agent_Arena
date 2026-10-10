@@ -187,7 +187,7 @@ B5: *"my math review found fleeing was nearly unreachable (sale-first ordering +
 | `challenge/BATTLE_PROMPT_v22.md` | cards A1–A14 and B1–B12 compressed into §1 (routes), §2 (look), §3 (premise/novelty), §4 (engineering + probe execution), §5 (hard rules) |
 | `repo-ops/sandbox-tools/e2-probe-harness/` **[repo]** | the verification unlock (probe executed through the build step, self-test green) — the concrete capability answer to "0 engines used" |
 | `challenge/SANDBOX_CAPABILITIES_GUIDE.md` (v2) | measured route table by environment class + the honest statement that Blender/Godot are unreachable in the battle class |
-| `benchmark/06` §6.5 | C24 (single-axis wind flight), C25 (auction/valuation), C26 provisional (flock funnelling) |
+| `benchmark/06` §6.5 | C24 (single-axis wind flight), C25 (auction/valuation), flock funnelling (unnumbered watch item, below the registration bar) |
 | `benchmark/04-defect-taxonomy.md` | CONTROL-LEGIBILITY, LEVEL-N-SOLVABILITY, NOVELTY-COLLISION |
 | `battles/round-018-v21-field-analysis.md` | the full comment-by-comment read + metrics + evidence index |
 

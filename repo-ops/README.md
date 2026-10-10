@@ -1,4 +1,13 @@
-# Install the NEXUS benchmark CI as a GitHub status check
+# repo-ops — CI install and sandbox tooling
+
+Two topics, both operator-facing:
+
+1. **[Install the benchmark CI as a GitHub status check](#install-the-nexus-benchmark-ci-as-a-github-status-check)** — the workflow file, the 2-minute install, what it guards.
+2. **[Sandbox tools](#sandbox-tools-verified-for-the-battle-workspaces)** — the verified tools for battle workspaces (E1 Blender headless, E2 probe harness).
+
+---
+
+## Install the NEXUS benchmark CI as a GitHub status check
 
 The automation token that pushes this branch is **refused by GitHub when a push
 creates/updates files under `.github/workflows/`** (the token has no `workflows`
@@ -44,4 +53,4 @@ pre-merge commands (documented in `benchmark/README.md`, "Anti-drift guard").
 | [`sandbox-tools/blender-headless/`](sandbox-tools/blender-headless/README.md) | E1 (shell) | Blender 4.2 as a Python module with stub `.so`s for minimal hosts; seeded generator → glTF → Khronos validator → Cycles **CPU** QA stills | 2026-09-06 (analyst sandbox, rebuild-from-scratch) |
 | [`sandbox-tools/e2-probe-harness/`](sandbox-tools/e2-probe-harness/README.md) | E2/E3 (npm-only) | Makes a TypeScript autopilot probe **executable** with `esbuild` (needs `npm i -D esbuild` on Vite 8; Vite 7 bundles it) on Node — no shell, no browser, no new runtime deps. Exit 0 pass / 1 failed check / 2 could-not-execute; `--json` summary for the README | 2026-09-21 (`./selftest.sh`: 2 pass paths, 4 failure paths, JSON mode) |
 
-The E2 harness exists because 21 of 22 sessions in round 018 wrote a probe they could never run; the one session that hooked its build to execute the probe found a real balance defect and delivered the round's best-received game. Dropping `run-probe.mjs` into a battle workspace (`"probe": "node scripts/run-probe.mjs"`) is an operator decision — see `challenge/SANDBOX_CAPABILITIES_GUIDE.md` §4 (D2).
+The E2 harness exists because 20 of 22 sessions in round 018 wrote a probe they could never run; the one session that hooked its build to execute the probe found a real balance defect and delivered the round's best-received game. Dropping `run-probe.mjs` into a battle workspace (`"probe": "node scripts/run-probe.mjs"`) is an operator decision — see `challenge/SANDBOX_CAPABILITIES_GUIDE.md` §4 (D2).
