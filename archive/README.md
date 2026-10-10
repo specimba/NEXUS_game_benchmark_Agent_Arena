@@ -1,7 +1,9 @@
 # Archive — preserved artifacts from the benchmark's history
 
 Files kept for provenance. Nothing here is part of the active benchmark package; the live
-entry points are in the repository root README.
+entry points are in the repository root README. Archived code is excluded from SonarCloud
+analysis (`sonar.exclusions=archive/**` in `sonar-project.properties`) — it is preserved
+byte-faithful, not maintained.
 
 ## `legacy-game/` — TIDEWRIGHT and its era documents
 

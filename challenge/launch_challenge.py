@@ -62,10 +62,15 @@ BRIEF = Path(__file__).resolve().parent / "BATTLE_PROMPT.md"
 SPEC = Path(__file__).resolve().parent.parent / "GAME_SPEC.md"
 SELFQA = Path(__file__).resolve().parent / "DEVELOPER_SELF_QA.md"
 
+# Workspace-side file names (the names the files are shipped under).
+WS_BRIEF = "BATTLE_PROMPT.md"
+WS_SPEC = "GAME_SPEC.md"
+WS_SELFQA = "DEVELOPER_SELF_QA.md"
+
 CHALLENGE_FILES = {
-    "BATTLE_PROMPT.md": BRIEF,
-    "GAME_SPEC.md": SPEC,
-    "DEVELOPER_SELF_QA.md": SELFQA,
+    WS_BRIEF: BRIEF,
+    WS_SPEC: SPEC,
+    WS_SELFQA: SELFQA,
 }
 
 MANIFEST_NAME = "run_manifest.json"
@@ -139,8 +144,8 @@ def cmd_setup(args) -> None:
     n = args.agents
     ts = now_iso()
     # v22+ self-contained prompts need no companion files: --prompt-only ships the brief alone.
-    files = ({"BATTLE_PROMPT.md": brief} if prompt_only
-             else {"BATTLE_PROMPT.md": brief, "GAME_SPEC.md": SPEC, "DEVELOPER_SELF_QA.md": SELFQA})
+    files = ({WS_BRIEF: brief} if prompt_only
+             else {WS_BRIEF: brief, WS_SPEC: SPEC, WS_SELFQA: SELFQA})
     ensure_files(files)
     manifest = {
         "created_utc": ts,
@@ -155,7 +160,7 @@ def cmd_setup(args) -> None:
         if prompt_only:
             # Reused output dir: a previous default setup may have left companion files.
             # The prompt-only manifest promises exactly one file — clear the stale ones.
-            for stale in ("GAME_SPEC.md", "DEVELOPER_SELF_QA.md"):
+            for stale in (WS_SPEC, WS_SELFQA):
                 (wd / stale).unlink(missing_ok=True)
         for name, src in files.items():
             shutil.copyfile(src, wd / name)
@@ -185,7 +190,7 @@ def cmd_single_prompt(args) -> None:
     """Emit ONE paste-ready prompt (full brief inline) for agents with NO repo access."""
     brief = resolve_brief(getattr(args, "prompt", None))
     # Both modes build the deliverable from the brief alone — no companion files required.
-    ensure_files({"BATTLE_PROMPT.md": brief})
+    ensure_files({WS_BRIEF: brief})
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     print(f"[single-prompt] source: {brief} — {prompt_version_line(brief)}")
