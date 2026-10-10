@@ -1,7 +1,7 @@
 # Battle Round 009 — After-Action Record
 
 **Status:** informal / directional. Not a formal S1–S8 scored round.
-**Source log:** `ARENAaiAGENTandGAMEbenchNEXUSfreecreationlogs9.txt` (6 model sessions)
+**Source log:** `../logs/game-log-09.txt` (6 model sessions)
 **Operator:** specimba
 **Recorded by benchmark:** 2026-08-24 (Ankara)
 **Prompt version active during observations:** BATTLE_PROMPT **v12** (the v11+Creative-v0 merge)
@@ -100,7 +100,7 @@ If v13 ships as a normal battle (not a controlled experiment): **craft/sim share
 | `README.md` | Round 009 actual + Round 010 plan (controlled experiments as headline). |
 | `expert_team/CONSENSUS.md` + `ORCHESTRATION.md` | Round 009 expert analysis + the L1/L2/L3 decomposition + experiments recommendation. |
 | `battles/round-009-after-action.md` | (this file) |
-| `ARENAaiAGENTandGAMEbenchNEXUSfreecreationlogs9.txt` | Brought into the branch from the operator's `01a01d22` upload so the log set stays complete. |
+| `../logs/game-log-09.txt` | Brought into the branch from the operator's `01a01d22` upload so the log set stays complete. |
 
 ## 10. Honest bottom line for the operator
 

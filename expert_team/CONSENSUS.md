@@ -145,7 +145,7 @@ Both agents shipped the **same crane/pendulum-damping game** (hidden-model **SLE
 
 ## Round 007 (v9 → v10) — parallel expert read of `freecreationlogs8.txt`
 
-Source: `ARENAaiAGENTandGAMEbenchNEXUSfreecreationlogs8.txt` (v9 prompt + 8 model sessions, 2 battles). Operator: specimba.
+Source: `../logs/game-log-08.txt` (v9 prompt + 8 model sessions, 2 battles). Operator: specimba.
 
 ### Games observed + operator verdicts (Round 007)
 | Battle | Model (blind/known) | Game | Operator verdict (verbatim) |

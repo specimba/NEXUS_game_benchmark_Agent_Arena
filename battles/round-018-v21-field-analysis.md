@@ -1,6 +1,6 @@
 # Round 018 (v21 single-prompt field test) — deep read of log 17
 
-**Source:** `ARENAaiAGENTandGAMEbenchNEXUSfreecreationlogs17.txt` (22 sessions, 11 battles, 11 operator comments, 12 205 lines)
+**Source:** `../logs/game-log-17.txt` (22 sessions, 11 battles, 11 operator comments, 12 205 lines)
 **Prompt under test:** `challenge/BATTLE_PROMPT_v21.md` (pasted verbatim at the head of the log, 15.7 KB)
 **Operator:** specimba · **Recorded by benchmark:** 2026-09-21
 **Trigger (operator):** *"Be grounded, and let's continue with logs. 17 new reviews and examples are being created to improve our prompts and the benchmark's capabilities. For example, we can see that they do not use the engines we expected and planned — Godot or Blender — but there are still good graphical or game-mechanic approaches we need to distill to better combine with old logs and knowledge."*

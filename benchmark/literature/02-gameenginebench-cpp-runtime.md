@@ -1,6 +1,6 @@
 # 02 — GameEngineBench: Evaluating Coding Agents on Real C++ Runtime Environments
 
-**Status:** verified live (arXiv abs page fetched 2026-09-03; matches uploaded `gameBENCHpapersdoc1.txt`).
+**Status:** verified live (arXiv abs page fetched 2026-09-03; matches uploaded `game-bench-papers-doc1.txt`).
 
 ## Citation facts
 

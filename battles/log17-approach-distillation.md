@@ -1,6 +1,6 @@
 # Log 17 approach ledger — what to distill (graphics · mechanics · verification)
 
-**Source:** `ARENAaiAGENTandGAMEbenchNEXUSfreecreationlogs17.txt` (R018, v21, 22 sessions / 11 battles).
+**Source:** `../logs/game-log-17.txt` (R018, v21, 22 sessions / 11 battles).
 **Purpose:** the benchmark's prompt revisions have always been comment-driven; this round the operator asked for the *other* half — **distill the approaches that actually produced good-looking or well-playing results so they can be combined with the old log knowledge** (`battles/round-015…`, `benchmark/prompt-lineage-deep-analysis.md`, `benchmark/19-prompt-merge-blueprint.md`, registry C11–C23).
 **Rule of the ledger:** every card is anchored to a session, a quoted artifact line, and the operator's verdict on it. No card is invented from taste. Cards marked **[embed]** went into `challenge/BATTLE_PROMPT_v22.md`; **[repo]** are for benchmark-side assets; **[watch]** are held.
 
