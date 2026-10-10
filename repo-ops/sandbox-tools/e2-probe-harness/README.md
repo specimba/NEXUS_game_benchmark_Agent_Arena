@@ -1,6 +1,6 @@
 # E2 probe harness — running an autopilot probe in a browser-less, shell-less sandbox
 
-**Status: verified** (2026-10-10, Debian 12 x86_64, node v22.22.3, npm 10.9.8 — `./selftest.sh` → 3 pass paths, 10 failure paths, JSON + timeout + relative-modules all green).
+**Status: verified** (2026-10-10, Debian 12 x86_64, node v22.22.3, npm 10.9.8 — `./selftest.sh` → 3 pass paths, 12 failure paths, JSON + timeout + relative-modules all green).
 **Provenance:** distilled from round 018 (log 17, session B11 / `claude-opus-5`), the *only* session of 22 that managed to execute its own probe. It made the probe runnable by hooking the build pipeline; the executed probe immediately found a real balance defect (a 1/24 win rate from over-equipped rivals). That session produced the operator's *"very interesting…"* pick of the round. 20 of 22 sessions shipped probes they never ran (the 22nd session, B10, was truncated in the log capture with no probe evidence).
 
 ---

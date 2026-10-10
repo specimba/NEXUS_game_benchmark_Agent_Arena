@@ -16,9 +16,11 @@
 #   8.  result entry without ok       -> exit 2 (a malformed report is never a pass)
 #   9.  hanging probe + --timeout     -> exit 2 (bounded runtime; no infinite hang)
 #   10. late async log after report   -> exit 0 (only the report line is parsed)
-#   11. --json on silent probe        -> exit 2 + verdict could-not-report (JSON keeps the contract)
-#   12. --json on failing probe       -> exit 1 + "exit": 1 (JSON reports the harness verdict)
-#   13. relative --modules=<dir>      -> exit 0 (relative search roots are resolved)
+#   11. contradictory aggregate fields-> exit 1 (every supplied fails/ok/pass is evaluated)
+#   12. unrelated JSON log as report  -> exit 2 (extra keys mark a line as noise, not evidence)
+#   13. --json on silent probe        -> exit 2 + verdict could-not-report (JSON keeps the contract)
+#   14. --json on failing probe       -> exit 1 + "exit": 1 (JSON reports the harness verdict)
+#   15. relative --modules=<dir>      -> exit 0 (relative search roots are resolved)
 set -u
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WORK="$(mktemp -d)"
@@ -70,6 +72,17 @@ cat > "$WORK/example/late-log-probe.ts" <<'EOF'
 console.log(JSON.stringify({ check: 'late-log', results: [{ name: 'reported before noise', ok: true }] }));
 setTimeout(() => console.log('late async noise after the report'), 5);
 EOF
+cat > "$WORK/example/contradictory-agg-probe.ts" <<'EOF'
+// Detailed results pass, one aggregate field says fails:0, another says ok:false:
+// EVERY supplied aggregate field must be evaluated — this is a failure.
+console.log(JSON.stringify({ check: 'mixed', results: [{ name: 'listed pass', ok: true }], fails: 0, ok: false }));
+EOF
+cat > "$WORK/example/noise-json-probe.ts" <<'EOF'
+// No report at all — only an unrelated structured JSON log with an extra key. It must NOT
+// be accepted as verdict evidence.
+console.log(JSON.stringify({ ok: true, source: 'startup' }));
+console.log('just a human log');
+EOF
 
 cd "$WORK" || exit 3
 if [ ! -d node_modules/esbuild ]; then
@@ -102,6 +115,9 @@ grep -qi "timeout" out9.txt && note "      timeout named in the message: yes" ||
 
 node run-probe.mjs example/late-log-probe.ts >out10.txt 2>&1; expect "late async log after the report still passes" 0 $?
 
+node run-probe.mjs example/contradictory-agg-probe.ts >out15.txt 2>&1; expect "contradictory aggregate fields fail the probe" 1 $?
+node run-probe.mjs example/noise-json-probe.ts >out16.txt 2>&1; expect "unrelated JSON log is not verdict evidence" 2 $?
+
 node run-probe.mjs --json example/src/game/probe.ts >out11.txt 2>&1
 grep -q '"executed": true' out11.txt && note "[PASS] --json reports executed=true" || { note "[FAIL] --json did not report executed=true"; fail=1; }
 grep -q '"checks":' out11.txt && note "[PASS] --json reports check counts" || { note "[FAIL] --json lacked check counts"; fail=1; }
@@ -119,6 +135,6 @@ ln -s "$WORK/node_modules" "$ISO/mods/node_modules"
 ( cd "$ISO/proj" && node "$WORK/run-probe.mjs" --modules=../mods "$WORK/example/src/game/probe.ts" ) >out14.txt 2>&1
 expect "relative --modules path resolves" 0 $?
 
-if [ "$fail" = 0 ]; then note "== harness verified: 3 pass paths, 10 failure paths, json + timeout + relative-modules =="; exit 0; fi
+if [ "$fail" = 0 ]; then note "== harness verified: 3 pass paths, 12 failure paths, json + timeout + relative-modules =="; exit 0; fi
 note "== harness self-test FAILED =="
 exit 1

@@ -22,8 +22,11 @@
  * Probe contract (one line of JSON on stdout):
  *   {"check": "<name>", "results": [{"name": "...", "ok": true|false, "detail": "..."}]}
  * Aggregate forms are accepted too: {"ok": true} or {"pass": true} or {"fails": 0}.
- * Every results[] entry must carry a boolean `ok`. Human-readable logs are printed as usual;
- * only the report line decides the verdict — output printed after the report cannot corrupt it.
+ * A report line may carry ONLY those keys — any other key marks the line as an unrelated
+ * JSON log, which is ignored (never evidence). Every results[] entry must carry a boolean
+ * `ok`, and every aggregate field a report supplies is evaluated (conflicting fields fail).
+ * Human-readable logs are printed as usual; only the report line decides the verdict —
+ * output printed after the report cannot corrupt it.
  *
  * Exit codes:
  *   0 = executed, reported, and all checks passed
@@ -173,13 +176,19 @@ console.log = (...a) => { lines.push(a.map(String).join(' ')); realLog(...a); };
 let threw = null;
 try { await import(${JSON.stringify(pathToFileURL(outfile).href)}); }
 catch (e) { threw = String(e?.stack ?? e); realLog('[probe-harness] probe threw:', threw); }
+// A verdict line carries ONLY the report keys ({check, results, fails} detailed form,
+// or {ok} / {pass} / {fails} aggregate form). Any other key means the line is an
+// unrelated JSON log (startup noise, a library banner), never probe evidence.
+const known = new Set(['check', 'results', 'fails', 'ok', 'pass']);
 const verdicts = [];
 for (const l of lines) {
   const t = l.trim();
   if (!t.startsWith('{')) continue;
   try {
     const o = JSON.parse(t);
-    if (o && typeof o === 'object' && ('results' in o || 'ok' in o || 'pass' in o || 'fails' in o)) verdicts.push(o);
+    if (o && typeof o === 'object'
+        && ('results' in o || 'ok' in o || 'pass' in o || 'fails' in o)
+        && Object.keys(o).every((k) => known.has(k))) verdicts.push(o);
   } catch {}
 }
 process.stdout.write('__PROBE_REPORT__' + JSON.stringify({ verdicts, threw }) + '\\n');
@@ -208,11 +217,13 @@ const verdicts = parsed && Array.isArray(parsed.verdicts) ? parsed.verdicts : []
 const results = verdicts.flatMap((v) => (Array.isArray(v?.results) ? v.results : []));
 const malformed = results.filter((r) => !(r && typeof r === 'object' && typeof r.ok === 'boolean'));
 const failed = results.filter((r) => r && r.ok === false);
+// Evaluate EVERY aggregate field a report supplies — a report that says
+// {fails: 0, ok: false} must fail, whichever field is read first.
 let aggregateFails = null;
 for (const v of verdicts) {
   if (typeof v.fails === 'number') aggregateFails = (aggregateFails ?? 0) + v.fails;
-  else if (typeof v.ok === 'boolean') aggregateFails = (aggregateFails ?? 0) + (v.ok ? 0 : 1);
-  else if (typeof v.pass === 'boolean') aggregateFails = (aggregateFails ?? 0) + (v.pass ? 0 : 1);
+  if (typeof v.ok === 'boolean') aggregateFails = (aggregateFails ?? 0) + (v.ok ? 0 : 1);
+  if (typeof v.pass === 'boolean') aggregateFails = (aggregateFails ?? 0) + (v.pass ? 0 : 1);
 }
 const found = parsed !== null && verdicts.length > 0;
 

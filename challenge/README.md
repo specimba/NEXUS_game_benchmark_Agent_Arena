@@ -98,9 +98,11 @@ python challenge/launch_challenge.py single-prompt --out runs/r019-v22 --bare \
     --prompt challenge/BATTLE_PROMPT_v22.md      # -> runs/r019-v22/PROMPT.md
 ```
 
-`--prompt-only` ships one file (and clears stale companion files when an output dir is
-reused); `--bare` writes the prompt bytes unmodified (no wrapper comments) and prints the
-**full** sha256. The manifest records `brief_version`, the per-agent file list and the shared
+`--prompt-only` ships one file; `--bare` writes the prompt bytes unmodified (no wrapper
+comments) and prints the **full** sha256. Setup always provisions pristine workspaces:
+when an output dir is reused, any pre-existing content in each `agentN/` workspace is
+cleared (and listed) before the challenge files are copied, so the manifest's file list
+is true. The manifest records `brief_version`, the per-agent file list and the shared
 `brief_sha256` — that is the fairness evidence for the round. To make a held version the
 default for every later run, copy it over the live file
 (`cp challenge/BATTLE_PROMPT_v22.md challenge/BATTLE_PROMPT.md`) — one command, same hash.

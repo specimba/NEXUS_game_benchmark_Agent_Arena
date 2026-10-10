@@ -157,11 +157,18 @@ def cmd_setup(args) -> None:
     for i in range(1, n + 1):
         wd = out / f"agent{i}"
         wd.mkdir(parents=True, exist_ok=True)
-        if prompt_only:
-            # Reused output dir: a previous default setup may have left companion files.
-            # The prompt-only manifest promises exactly one file — clear the stale ones.
-            for stale in (WS_SPEC, WS_SELFQA):
-                (wd / stale).unlink(missing_ok=True)
+        # Provisioning contract: after setup the workspace contains EXACTLY the shipped
+        # challenge files. A reused output dir is cleared first — leftovers from an
+        # earlier run (companions, old sources, assets) would contaminate the round and
+        # contradict the manifest. The previous run's manifest kept its build hashes.
+        stale = sorted(p.name for p in wd.iterdir())
+        for p in wd.iterdir():
+            if p.is_dir() and not p.is_symlink():
+                shutil.rmtree(p)
+            else:
+                p.unlink()
+        if stale:
+            print(f"[setup] cleared {len(stale)} stale entr{'y' if len(stale) == 1 else 'ies'} from {wd}")
         for name, src in files.items():
             shutil.copyfile(src, wd / name)
         entry = {
