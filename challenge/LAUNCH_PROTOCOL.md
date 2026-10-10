@@ -23,6 +23,22 @@ Because brief is self-contained, agent that never sees repo knows everything rep
 
 Guarantee of equality: setup hashes brief and writes hash into run manifest, so you can prove both agents received byte-identical instructions.
 
+### 1a. Delivery generations — legacy (≤ v21) vs one-file (v22+)
+
+The table above is the **legacy contract** (prompt versions up to v21): three files for
+repo-access agents, a wrapped `SINGLE_PROMPT.md` for no-repo agents. From **v22** the prompt
+is fully self-contained, and the delivery contract changes to **one file, nothing else**:
+
+| Agent has repo access? | v22+ delivery |
+|---|---|
+| Yes | `launch_challenge.py setup --prompt-only --prompt challenge/BATTLE_PROMPT_v22.md` — each workspace receives ONLY `BATTLE_PROMPT.md` (the manifest records `delivery: prompt-only` and the file list; stale companions from a reused directory are cleared). |
+| No | `launch_challenge.py single-prompt --bare --prompt challenge/BATTLE_PROMPT_v22.md` — writes `PROMPT.md` byte-identical to the held version and prints the full sha256; paste those exact bytes as the opening message. No wrapper comments. |
+
+Never mix generations within one battle: both agents must receive the same delivery
+generation of the same prompt bytes, or the byte-identity fairness evidence is invalid.
+Rounds run under the legacy contract keep it; the manifest's `delivery` field records which
+contract each round used.
+
 ## 2. Repository sharing and containment
 
 Real risk is not delivery, it's information leakage: agent that can see evaluation files could tailor build to rubric. Three defenses:

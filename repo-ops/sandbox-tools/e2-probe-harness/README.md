@@ -1,7 +1,7 @@
 # E2 probe harness — running an autopilot probe in a browser-less, shell-less sandbox
 
-**Status: verified** (2026-09-21, Debian 12 x86_64, node v22.22.3, npm 10.9.8 — `./selftest.sh` → 2 pass paths, 4 failure paths, JSON mode all green).
-**Provenance:** distilled from round 018 (log 17, session B11 / `claude-opus-5`), the *only* session of 22 that managed to execute its own probe. It made the probe runnable by hooking the build pipeline; the executed probe immediately found a real balance defect (a 1/24 win rate from over-equipped rivals). That session produced the operator's *"very interesting…"* pick of the round. 21 of 22 sessions shipped probes they never ran.
+**Status: verified** (2026-10-10, Debian 12 x86_64, node v22.22.3, npm 10.9.8 — `./selftest.sh` → 3 pass paths, 10 failure paths, JSON + timeout + relative-modules all green).
+**Provenance:** distilled from round 018 (log 17, session B11 / `claude-opus-5`), the *only* session of 22 that managed to execute its own probe. It made the probe runnable by hooking the build pipeline; the executed probe immediately found a real balance defect (a 1/24 win rate from over-equipped rivals). That session produced the operator's *"very interesting…"* pick of the round. 20 of 22 sessions shipped probes they never ran (the 22nd session, B10, was truncated in the log capture with no probe evidence).
 
 ---
 
@@ -39,6 +39,17 @@ path-alias support, browser-global stubs, exit-code semantics documented, self-t
 the artifact to drop into battle workspaces if the operator approves D2. The prompt version is
 deliberately minimal so that it costs the agent nothing to read.
 
+**Two variants, one route — do not mix their contracts.**
+
+| | prompt inline runner (v22 §1, `scripts/probe.mjs`) | this harness (`run-probe.mjs`) |
+|---|---|---|
+| verdict source | the probe's `export const fails = …` (module export) | one JSON report line on stdout (`{"check", "results", "fails"}`) |
+| exit codes | 0 pass · 1 any fail (or export missing) · 2 bundling failure | 0 pass · 1 any detailed **or aggregate** fail · 2 could-not-trust (below) |
+| trust rules | minimal — built for zero reading cost | strict: threw, timeout, crash, missing/malformed report, or a result entry without a boolean `ok` all exit 2 |
+
+Both treat exit 2 as *information, never a pass*. A probe written for the prompt contract
+(exports `fails` **and** prints the JSON line) runs correctly under both.
+
 ## 2. Usage (copy into the game project)
 
 ```bash
@@ -61,9 +72,9 @@ Probe output contract — **one JSON line on stdout** is what decides the exit c
 console.log(JSON.stringify({ check: 'autopilot', results, fails: results.filter(r => !r.ok).length }));
 ```
 
-Exit codes: `0` all checks pass · `1` a check failed · `2` probe could not be bundled, executed, or report (**never** treat 2 as a pass).
+Exit codes: `0` executed, reported, all checks pass · `1` executed and reported, but a detailed or aggregate check failed · `2` the harness could not produce a trusted verdict — bundling failed, entry missing, esbuild missing, the probe timed out, crashed, threw, printed no report, or printed a malformed report (**never** treat 2 as a pass). Only the report line itself is parsed, so output printed after the report cannot corrupt the verdict.
 
-Flags: `--json` (machine-readable summary for the README) · `--alias=@=src` (tsconfig/Vite path aliases) · `--modules=<dir>` (extra node_modules roots) · `PROBE_ESBUILD` env var.
+Flags: `--json` (machine-readable summary — its `exit` field carries the harness verdict, `child_exit` the probe's own status) · `--alias=@=src` (tsconfig/Vite path aliases) · `--modules=<dir>` (extra node_modules search roots; relative paths are resolved) · `--timeout=<ms>` (probe runtime bound, default 60000) · `PROBE_ESBUILD` env var.
 
 ## 3. What to probe (the checks that caught real defects in the field)
 

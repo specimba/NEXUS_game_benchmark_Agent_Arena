@@ -15,15 +15,22 @@
  *   node scripts/run-probe.mjs                        # entry defaults to src/game/probe.ts
  *   node scripts/run-probe.mjs src/game/probe.ts      # explicit entry
  *   node scripts/run-probe.mjs --alias=@=src          # resolve tsconfig/vite path aliases
+ *   node scripts/run-probe.mjs --modules=<dir>        # extra node_modules search roots (relative paths ok)
+ *   node scripts/run-probe.mjs --timeout=30000        # max probe runtime in ms (default 60000)
  *   node scripts/run-probe.mjs --json                 # machine-readable summary
  *
  * Probe contract (one line of JSON on stdout):
  *   {"check": "<name>", "results": [{"name": "...", "ok": true|false, "detail": "..."}]}
  * Aggregate forms are accepted too: {"ok": true} or {"pass": true} or {"fails": 0}.
- * Human-readable logs are printed as usual; the JSON line decides the exit code.
+ * Every results[] entry must carry a boolean `ok`. Human-readable logs are printed as usual;
+ * only the report line decides the verdict — output printed after the report cannot corrupt it.
  *
- * Exit codes: 0 = executed and all checks passed. 1 = a check failed. 2 = the probe could not
- * be bundled / executed / reported (that is information, never a pass).
+ * Exit codes:
+ *   0 = executed, reported, and all checks passed
+ *   1 = executed and reported, but at least one check failed (detailed or aggregate)
+ *   2 = the harness could not produce a trusted verdict: bundling failed, entry missing,
+ *       esbuild missing, probe timed out, crashed, threw, printed no report, or printed a
+ *       malformed report. Exit 2 is information, never a pass.
  *
  * What this proves: sim rules, reachability of win/fail, determinism, restart, loop closure.
  * What this cannot prove: pixels, audio, feel, pacing on a real machine. Say so in the README.
@@ -38,7 +45,11 @@ import { spawnSync } from 'node:child_process';
 const argv = process.argv.slice(2);
 const jsonOnly = argv.includes('--json');
 const aliasSpecs = argv.filter((a) => a.startsWith('--alias=')).map((a) => a.slice('--alias='.length));
-const searchDirs = argv.filter((a) => a.startsWith('--modules=')).map((a) => a.slice('--modules='.length));
+// Resolve --modules roots up-front: createRequire needs absolute paths, and a relative
+// search dir must work the same way an absolute one does.
+const searchDirs = argv.filter((a) => a.startsWith('--modules=')).map((a) => resolve(a.slice('--modules='.length)));
+const timeoutSpec = argv.find((a) => a.startsWith('--timeout='));
+const timeoutMs = timeoutSpec ? Math.max(100, Number(timeoutSpec.slice('--timeout='.length)) || 60000) : 60000;
 const entry = argv.find((a) => !a.startsWith('--')) ?? 'src/game/probe.ts';
 const alias = Object.fromEntries(aliasSpecs.map((spec) => {
   const [k, v] = spec.split('=');
@@ -70,19 +81,52 @@ function loadEsbuild() {
 }
 
 const { esbuild, how, attempts } = loadEsbuild();
+
+// One machine-readable summary object; emitted verbatim in --json mode on every exit path.
+const summary = {
+  entry,
+  esbuild: how,
+  executed: false,
+  verdict: 'could-not-report',
+  reason: null,
+  probes: [],
+  checks: 0,
+  failed: 0,
+  malformed: 0,
+  aggregate_fails: null,
+  threw: null,
+  child_exit: null,
+  child_signal: null,
+  timeout_ms: timeoutMs,
+  exit: 2,
+};
+
+let cleanup = () => {};
+function finish(code) {
+  summary.exit = code;
+  cleanup();
+  if (jsonOnly) process.stdout.write(JSON.stringify(summary, null, 2) + '\n');
+  process.exit(code);
+}
+
 if (!esbuild) {
-  console.error('[probe-harness] esbuild not found — cannot execute the probe.');
-  console.error('  Tried: ' + attempts.join(' | '));
-  console.error('  Fix: `npm i -D esbuild` (Vite 7 projects already have it; Vite 8 does not), or run inside the project.');
-  process.exit(2);
+  summary.reason = 'esbuild-not-found';
+  if (!jsonOnly) {
+    console.error('[probe-harness] esbuild not found — cannot execute the probe.');
+    console.error('  Tried: ' + attempts.join(' | '));
+    console.error('  Fix: `npm i -D esbuild` (Vite 7 projects already have it; Vite 8 does not), or run inside the project.');
+  }
+  finish(2);
 }
 
 if (!existsSync(entry)) {
-  console.error(`[probe-harness] probe entry not found: ${entry}`);
-  process.exit(2);
+  summary.reason = 'entry-missing';
+  if (!jsonOnly) console.error(`[probe-harness] probe entry not found: ${entry}`);
+  finish(2);
 }
 
 const outdir = mkdtempSync(join(tmpdir(), 'e2-probe-'));
+cleanup = () => rmSync(outdir, { recursive: true, force: true });
 const outfile = join(outdir, 'probe.bundle.mjs');
 
 try {
@@ -98,11 +142,14 @@ try {
     ...(Object.keys(alias).length ? { alias } : {}),
   });
 } catch (err) {
-  console.error('[probe-harness] bundling failed — the probe, or something it imports, is not headless.');
-  console.error('  Fix: keep the simulation pure (invariants 2 & 3: zero top-level side effects, seeded');
-  console.error('  randomness) and keep DOM/canvas/audio behind injected interfaces.');
-  console.error(String(err?.message ?? err));
-  process.exit(2);
+  summary.reason = 'bundling-failed';
+  if (!jsonOnly) {
+    console.error('[probe-harness] bundling failed — the probe, or something it imports, is not headless.');
+    console.error('  Fix: keep the simulation pure (invariants 2 & 3: zero top-level side effects, seeded');
+    console.error('  randomness) and keep DOM/canvas/audio behind injected interfaces.');
+    console.error(String(err?.message ?? err));
+  }
+  finish(2);
 }
 
 // Minimal browser-surface stubs: a probe that touches a guarded global should degrade, not crash.
@@ -138,13 +185,28 @@ for (const l of lines) {
 process.stdout.write('__PROBE_REPORT__' + JSON.stringify({ verdicts, threw }) + '\\n');
 `);
 
-const run = spawnSync(process.execPath, [runner], { encoding: 'utf8', cwd: process.cwd() });
-const marker = (run.stdout ?? '').split('__PROBE_REPORT__')[1];
-let parsed = null;
-if (marker) { try { parsed = JSON.parse(marker.trim()); } catch { parsed = null; } }
+const run = spawnSync(process.execPath, [runner], {
+  encoding: 'utf8',
+  cwd: process.cwd(),
+  timeout: timeoutMs, // a probe that loops forever must not hang the harness or the build hook
+  maxBuffer: 64 * 1024 * 1024, // verbose probes must not be truncated into a fake "no report"
+});
+summary.child_exit = run.status;
+summary.child_signal = run.signal ?? null;
 
-const verdicts = parsed?.verdicts ?? [];
-const results = verdicts.flatMap((v) => (Array.isArray(v.results) ? v.results : []));
+// Parse ONLY the report marker's own line. A probe may schedule late async logs after the
+// report; feeding those into JSON.parse would corrupt a perfectly valid verdict.
+const stdout = run.stdout ?? '';
+const markerAt = stdout.indexOf('__PROBE_REPORT__');
+const reportLine = markerAt >= 0
+  ? stdout.slice(markerAt + '__PROBE_REPORT__'.length).split('\n')[0].trim()
+  : '';
+let parsed = null;
+if (reportLine) { try { parsed = JSON.parse(reportLine); } catch { parsed = null; } }
+
+const verdicts = parsed && Array.isArray(parsed.verdicts) ? parsed.verdicts : [];
+const results = verdicts.flatMap((v) => (Array.isArray(v?.results) ? v.results : []));
+const malformed = results.filter((r) => !(r && typeof r === 'object' && typeof r.ok === 'boolean'));
 const failed = results.filter((r) => r && r.ok === false);
 let aggregateFails = null;
 for (const v of verdicts) {
@@ -154,29 +216,70 @@ for (const v of verdicts) {
 }
 const found = parsed !== null && verdicts.length > 0;
 
-if (jsonOnly) {
-  process.stdout.write(JSON.stringify({
-    entry,
-    esbuild: how,
-    executed: found,
-    probes: verdicts.map((v) => v.check ?? '(unnamed)'),
-    checks: results.length,
-    failed: failed.length,
-    aggregate_fails: aggregateFails,
-    threw: parsed?.threw ?? null,
-    exit: run.status,
-  }, null, 2) + '\n');
-} else if (!found) {
-  console.error('[probe-harness] the probe produced no machine-readable report.');
-  console.error('  A probe that cannot report cannot be evidence. Print one JSON summary line, e.g.');
-  console.error('  console.log(JSON.stringify({ check: "autopilot", results, fails }));');
-  process.exit(2);
-} else {
+summary.executed = found;
+summary.probes = verdicts.map((v) => v?.check ?? '(unnamed)');
+summary.checks = results.length;
+summary.failed = failed.length;
+summary.malformed = malformed.length;
+summary.aggregate_fails = aggregateFails;
+summary.threw = typeof parsed?.threw === 'string' && parsed.threw ? parsed.threw : null;
+
+// Trust ladder: execution must be clean before the report is believed.
+if (run.error || run.status === null) {
+  summary.reason = run.signal
+    ? `probe did not finish — killed with signal ${run.signal} (hit the ${timeoutMs} ms timeout; raise it with --timeout=<ms> if the probe legitimately needs longer)`
+    : `probe could not run to completion: ${run.error?.message ?? 'unknown spawn error'}`;
+  if (!jsonOnly) console.error(`[probe-harness] ${summary.reason}`);
+  finish(2);
+}
+if (run.status !== 0) {
+  summary.reason = `probe execution crashed with exit ${run.status} after the report stage — the verdict is not trusted`;
+  if (!jsonOnly) {
+    console.error(`[probe-harness] ${summary.reason}.`);
+    console.error('  A probe must exit cleanly: keep timers finite and never call process.exit() inside it.');
+  }
+  finish(2);
+}
+if (!found) {
+  summary.reason = 'no machine-readable report';
+  if (!jsonOnly) {
+    console.error('[probe-harness] the probe produced no machine-readable report.');
+    console.error('  A probe that cannot report cannot be evidence. Print one JSON summary line, e.g.');
+    console.error('  console.log(JSON.stringify({ check: "autopilot", results, fails }));');
+  }
+  finish(2);
+}
+if (summary.threw) {
+  summary.reason = 'probe threw during execution — the report is not trusted';
+  if (!jsonOnly) {
+    console.error('[probe-harness] the probe threw during execution; its report is rejected.');
+    console.error('  First lines: ' + summary.threw.split('\n').slice(0, 3).join(' | '));
+  }
+  finish(2);
+}
+if (malformed.length) {
+  summary.reason = `${malformed.length} result entr${malformed.length === 1 ? 'y lacks' : 'ies lack'} a boolean "ok" — the report is malformed`;
+  if (!jsonOnly) {
+    console.error(`[probe-harness] malformed report: ${summary.reason}.`);
+    for (const r of malformed.slice(0, 5)) console.error(`  offending entry: ${JSON.stringify(r)}`);
+  }
+  finish(2);
+}
+if (results.length === 0 && aggregateFails === null) {
+  summary.reason = 'report contained no decodable checks (no results[] and no aggregate ok/pass/fails)';
+  if (!jsonOnly) console.error(`[probe-harness] ${summary.reason}.`);
+  finish(2);
+}
+
+// Detailed results AND aggregate counters are both authoritative: any failure fails the probe.
+const pass = failed.length === 0 && (aggregateFails ?? 0) === 0;
+summary.verdict = pass ? 'pass' : 'fail';
+
+if (!jsonOnly) {
   console.log(`\n[probe-harness] ${entry} executed via ${how} — ${results.length} checks, ${failed.length} failed`);
   for (const r of results) console.log(`  ${r.ok ? 'PASS' : 'FAIL'}  ${r.name}${r.ok ? '' : `  — ${r.detail ?? ''}`}`);
   if (!results.length && aggregateFails !== null) console.log(`  (aggregate) ${aggregateFails ? 'FAIL' : 'PASS'}`);
+  if (results.length && (aggregateFails ?? 0) > 0) console.log(`  (aggregate) ${aggregateFails} additional failure(s) reported by the probe`);
 }
 
-const ok = found && (results.length ? failed.length === 0 : aggregateFails === 0);
-rmSync(outdir, { recursive: true, force: true });
-process.exit(ok ? 0 : 1);
+finish(pass ? 0 : 1);
