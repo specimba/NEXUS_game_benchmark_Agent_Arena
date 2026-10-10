@@ -2,8 +2,13 @@
 
 Files kept for provenance. Nothing here is part of the active benchmark package; the live
 entry points are in the repository root README. Archived code is excluded from SonarCloud
-analysis (`sonar.exclusions=archive/**` in `sonar-project.properties`) — it is preserved
-byte-faithful, not maintained.
+analysis — `sonar.exclusions=archive/**` in `sonar-project.properties` (scanner/CI
+analyses) and `sonar.exclusions=archive` in `.sonarcloud.properties` (autoscan, effective
+once that file is on the default branch) — it is preserved byte-faithful, not maintained.
+Until the exclusion is live, the two pre-existing S9383 findings in
+`legacy-game/src/main.js` (dated 2026-08-26) can fail the new-code reliability gate; the
+alternative project-level fix is SonarCloud → Administration → General Settings → Analysis
+Scope → Files → Source File Exclusions = `archive/**`.
 
 ## `legacy-game/` — TIDEWRIGHT and its era documents
 
