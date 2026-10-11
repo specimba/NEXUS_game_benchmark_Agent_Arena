@@ -61,6 +61,8 @@ Hand over: frozen build, way to run it, blind label, shared spec (for reference)
 The launcher always reads `BATTLE_PROMPT.md` (and hashes it into the run manifest), so
 running any prompt version is a **file swap, not a code change**:
 
+All commands below run **from the repository root**.
+
 ```bash
 # 1. back up the live prompt, install the held version
 cp challenge/BATTLE_PROMPT.md challenge/BATTLE_PROMPT_v17_LIVE_BACKUP.md   # if not already archived
@@ -74,11 +76,36 @@ sha256sum challenge/BATTLE_PROMPT.md        # record this hash (manifest stores 
 #     challenge/SANDBOX_CAPABILITIES_GUIDE.md — as a separate file, never merged into the prompt.
 
 # 3. launch as usual — setup/finalize record the prompt hash automatically
-python launch_challenge.py setup --out runs/r016-v20pkg --agents 2 --budget-min 90
-python launch_challenge.py single-prompt --out runs/r016-v20pkg     # for no-repo agents
-python launch_challenge.py finalize --out runs/r016-v20pkg --agents 2
+python challenge/launch_challenge.py setup --out runs/r016-v20pkg --agents 2 --budget-min 90
+python challenge/launch_challenge.py single-prompt --out runs/r016-v20pkg     # for no-repo agents
+python challenge/launch_challenge.py finalize --out runs/r016-v20pkg --agents 2
 # 4. check run_manifest.json: brief_sha256 per agent must match step 2 (sha256, not md5)
 ```
+
+### 6b. v22+ runs: one file, nothing else
+
+From v22 the prompt is **fully self-contained**: one file, no spec, no self-QA, no companion
+guide. The launcher supports that contract directly, so no file swap is needed. Run all
+commands **from the repository root**:
+
+```bash
+# repo-access agents: each workspace receives ONLY the prompt
+python challenge/launch_challenge.py setup --out runs/r019-v22 --agents 2 --budget-min 90 \
+    --prompt-only --prompt challenge/BATTLE_PROMPT_v22.md
+
+# no-repo agents: emit the paste-ready prompt, byte-identical to the held version
+python challenge/launch_challenge.py single-prompt --out runs/r019-v22 --bare \
+    --prompt challenge/BATTLE_PROMPT_v22.md      # -> runs/r019-v22/PROMPT.md
+```
+
+`--prompt-only` ships one file; `--bare` writes the prompt bytes unmodified (no wrapper
+comments) and prints the **full** sha256. Setup always provisions pristine workspaces:
+when an output dir is reused, any pre-existing content in each `agentN/` workspace is
+cleared (and listed) before the challenge files are copied, so the manifest's file list
+is true. The manifest records `brief_version`, the per-agent file list and the shared
+`brief_sha256` — that is the fairness evidence for the round. To make a held version the
+default for every later run, copy it over the live file
+(`cp challenge/BATTLE_PROMPT_v22.md challenge/BATTLE_PROMPT.md`) — one command, same hash.
 
 Rules for a held-prompt test round:
 
@@ -95,27 +122,30 @@ Rules for a held-prompt test round:
 
 - `BATTLE_PROMPT.md` — single challenge prompt (identical for both). Fully self-contained, open-ended, unlimited creativity: agent chooses 2D/3D/experimental format that wins human jury. Includes graphical ambition heavily weighted and no environment-sniffing anti-behavior. **Live version = v17** (lineage files: `BATTLE_PROMPT_v14_LEAN.md` … `BATTLE_PROMPT_v20.md`; see the lineage table in the repo README battle log).
 - `BATTLE_PROMPT_v20.md` — field-tested candidate (R016/R017, logs 15/16): v19 CORE wording + hedonics + invariant-7 reword + widened stop-you palette + embedded conditional capability section. Verdicts: game gate held, but fire/grid/growth clusters persisted and tooling use was 0/23 (battle sandboxes are E2/E3-class, not E1) — superseded by v21.
-- `BATTLE_PROMPT_v21.md` — **current held candidate** (2026-09-07): one single copy-paste prompt, whole coverage inside (operator directive — no companion files). Adds: environment-class routing E1/E2/E3 with per-class routes + required ENV report line; anti-cardboard visual checklist + blind-visuals handling (image channel = the agent's eyes); second-idea originality rule with expanded repeat-families note (fire/grid/growth/lighthouse + operations-crisis umbrella); fun-as-minutes contract + ship-complete rule; autoplay playability probe for browser-less sandboxes; PREMISE_NOTE / FUN_LINE / ENV README lines. Promotion to live is gated on the R018 field test verdict.
-- `SANDBOX_CAPABILITIES_GUIDE.md` — companion how-to for the v20 package: verified headless Blender (`bpy`) recipe, glTF/Khronos pipeline, CPU-render QA, egress walls, and when-to-drop rules. Handed to both agents (identical) in v20-package runs; tooling kit lives in `repo-ops/sandbox-tools/blender-headless/`.
+- `BATTLE_PROMPT_v21.md` — **field-tested candidate, promotion pending** (2026-09-07): one single copy-paste prompt, whole coverage inside (operator directive — no companion files). Adds: environment-class routing E1/E2/E3 with per-class routes + required ENV report line; anti-cardboard visual checklist + blind-visuals handling (image channel = the agent's eyes); second-idea originality rule with expanded repeat-families note (fire/grid/growth/lighthouse + operations-crisis umbrella); fun-as-minutes contract + ship-complete rule; autoplay playability probe for browser-less sandboxes; PREMISE_NOTE / FUN_LINE / ENV README lines. **R018 field test executed (log17, 22 sessions / 11 battles):** the fatigue note held (0/22 sessions in fire/grid/growth/lighthouse), the ship-complete rule held (0 "unfinished" verdicts; 21/22 closed builds — the 22nd session, B10, was truncated in the log capture with no delivery summary), audio defaults held (0 complaints) and the look checklist produced the first explicit operator visual praise since R012 — while the field relocated to C24 (single-axis wind flight) / C25 (auction-appraisal), Blender/Godot stayed at 0/22, and 20 of 22 probes shipped unexecuted (one session executed its probe; the truncated B10 session left no probe evidence). Full read: `battles/round-018-v21-field-analysis.md`; approach ledger: `battles/log17-approach-distillation.md`.
+- `BATTLE_PROMPT_v22.md` — **current draft candidate** (2026-09-21): built from the log17 comment set + approach ledger. Adds: the npm-3D recipe set (code geometry, canvas fbm material maps, PMREM, one motivated key light, guarded hand-rolled post-processing, instancing, 2D painter's stack); the **verification route** (execute the probe directly, or via an esbuild/Node script — the verified harness is `repo-ops/sandbox-tools/e2-probe-harness/` — or by hooking the build; otherwise disclose that it was not run); the **"has this game already been made?"** rule (clone-minus-systems and form-era failures); per-level reachability + control-legibility in the probe; a static-audit checklist of the bugs that actually shipped. Final size 22,496 bytes vs v21's 15,733 — +43% over v21, all of it capability/generative content, zero new bans. Not promoted: live remains v17 until the operator verdict. Change map: `battles/log17-v22-revision-notes.md`.
+- `SANDBOX_CAPABILITIES_GUIDE.md` — companion guide, **v2 (2026-09-21)**: measured route table by environment class from 45 battle sessions (E1 Blender recipe kept for the analyst class and asset pre-baking; E2 = `three` + code-modelled geometry + canvas material maps + hand-rolled physics + the image channel; the **verification route** — execute the probe via the esbuild/Node harness or a build hook, or disclose that it was not run); Blender/Godot marked unreachable in the battle class with the evidence. Companion tools: `repo-ops/sandbox-tools/blender-headless/` (E1) and `repo-ops/sandbox-tools/e2-probe-harness/` (E2/E3 verification).
 - `LAUNCH_PROTOCOL.md` — how to launch fairly when repo access heterogeneous, keep evaluation out of agents' reach, assume rubric public no-exploit guarantee
 - `DEVELOPER_SELF_QA.md` — internal build-verification checklist (launch, controls, feel, loop, rewards, persistence, states, robustness, accessibility, performance, audio, environment consistency, visual ambition)
 - `launch_challenge.py` — harness helper: setup (provision 2 isolated workspaces with identical brief + hash), single-prompt (emit paste-ready self-contained prompt for no-repo agents), finalize (record end time + build hashes + elapsed), audit (containment scan), status (show manifest)
 
 ## 8. Quick start
 
+All commands run **from the repository root**.
+
 ```bash
 # 1. Create two isolated workspaces with identical brief (hashed into manifest)
-python launch_challenge.py setup --out runs/round1 --agents 2 --budget-min 60
+python challenge/launch_challenge.py setup --out runs/round1 --agents 2 --budget-min 60
 
 # 2a. repo-access agent: build inside runs/round1/agent1 (and agent2)
-# 2b. no-repo agent:       python launch_challenge.py single-prompt --out runs/round1
+# 2b. no-repo agent:       python challenge/launch_challenge.py single-prompt --out runs/round1
 #                          then send entire runs/round1/SINGLE_PROMPT.md
 
 # 3. when both report done
-python launch_challenge.py finalize --out runs/round1 --agents 2
+python challenge/launch_challenge.py finalize --out runs/round1 --agents 2
 
 # 4. containment-audit delivered game builds (not workspace scaffolding)
-python launch_challenge.py audit runs/round1/agent1/game runs/round1/agent2/game
+python challenge/launch_challenge.py audit runs/round1/agent1/game runs/round1/agent2/game
 
 # 5. copy only frozen game builds to evaluation side; blind-label A/B; evaluate via human jury
 ```

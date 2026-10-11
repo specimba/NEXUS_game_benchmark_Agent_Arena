@@ -1,0 +1,12 @@
+# Everything defaults to the maintainer
+*                                   @specimba
+
+# Benchmark control plane (contract, aggregator, schema, gates)
+/benchmark/                         @specimba
+
+# Challenge production side (prompts, launcher, protocol)
+/challenge/                         @specimba
+
+# Sandbox tooling + CI
+/repo-ops/                          @specimba
+/.github/workflows/                 @specimba

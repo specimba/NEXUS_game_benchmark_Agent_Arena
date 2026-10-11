@@ -16,3 +16,12 @@ dist/
 
 # Reference experiment logs (kept locally, fetched from master when needed)
 .experiments/
+
+# Launcher run workspaces (created by challenge/launch_challenge.py examples)
+runs/
+
+# Editor / OS clutter
+.vscode/
+.idea/
+.DS_Store
+*.swp

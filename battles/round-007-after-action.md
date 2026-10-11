@@ -1,7 +1,7 @@
 # Battle Round 007 — After-Action Record
 
 **Status:** informal / directional. Not a formal S1–S8 scored round.
-**Source log (local, gitignored):** `ARENAaiAGENTandGAMEbenchNEXUSfreecreationlogs8.txt`
+**Source log (local, gitignored):** `../logs/game-log-08.txt`
 **Operator:** specimba
 **Recorded by benchmark:** 2026-08-23 (Ankara)
 **Prompt version active during observations:** BATTLE_PROMPT **v9** (the retro-visuals prompt shipped after Round 006; this round was the v9 field test predicted in R006 §6)

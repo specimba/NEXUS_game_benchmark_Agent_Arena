@@ -19,7 +19,9 @@ and the paper trail around them.
 
 Usage:
     python launch_challenge.py setup --out dir [--agents 2] [--budget-min 60]
-    python launch_challenge.py single-prompt --out dir            # paste-ready prompt (no-repo delivery)
+                   [--prompt-only] [--prompt PATH]     # v22+: ship exactly one file
+    python launch_challenge.py single-prompt --out dir [--bare] [--prompt PATH]
+                   # --bare: paste-ready prompt bytes, unmodified (v22 one-file delivery)
     python launch_challenge.py finalize --out dir [--agents 2] [--ship-count agent1=N,agent2=M]
     python launch_challenge.py audit <build_dir> [<build_dir> ...]
     python launch_challenge.py fingerprint <build_dir> [<build_dir> ...]   # capture stack/deps fingerprint per §6.6
@@ -27,7 +29,9 @@ Usage:
 
 Examples:
     python launch_challenge.py setup --out /tmp/arena-run --agents 2 --budget-min 60
+    python launch_challenge.py setup --out /tmp/arena-run --prompt-only --prompt challenge/BATTLE_PROMPT_v22.md
     python launch_challenge.py single-prompt --out /tmp/arena-run
+    python launch_challenge.py single-prompt --out /tmp/arena-run --bare --prompt challenge/BATTLE_PROMPT_v22.md
     python launch_challenge.py finalize --out /tmp/arena-run --agents 2 --ship-count agent1=1,agent2=3
     python launch_challenge.py fingerprint /tmp/arena-run/agent1/game /tmp/arena-run/agent2/game
 
@@ -44,6 +48,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import shutil
 import sys
 import time
@@ -57,10 +62,15 @@ BRIEF = Path(__file__).resolve().parent / "BATTLE_PROMPT.md"
 SPEC = Path(__file__).resolve().parent.parent / "GAME_SPEC.md"
 SELFQA = Path(__file__).resolve().parent / "DEVELOPER_SELF_QA.md"
 
+# Workspace-side file names (the names the files are shipped under).
+WS_BRIEF = "BATTLE_PROMPT.md"
+WS_SPEC = "GAME_SPEC.md"
+WS_SELFQA = "DEVELOPER_SELF_QA.md"
+
 CHALLENGE_FILES = {
-    "BATTLE_PROMPT.md": BRIEF,
-    "GAME_SPEC.md": SPEC,
-    "DEVELOPER_SELF_QA.md": SELFQA,
+    WS_BRIEF: BRIEF,
+    WS_SPEC: SPEC,
+    WS_SELFQA: SELFQA,
 }
 
 MANIFEST_NAME = "run_manifest.json"
@@ -99,63 +109,123 @@ def sha256_tree(directory: Path) -> dict[str, str]:
     return out
 
 
-def ensure_files() -> None:
-    missing = [str(p) for k, p in CHALLENGE_FILES.items() if not p.exists()]
+def resolve_brief(explicit: str | None) -> Path:
+    """The brief used for this run: an explicit --prompt path (held versions) or the live file."""
+    if not explicit:
+        return BRIEF
+    p = Path(explicit)
+    if not p.is_absolute():
+        p = (Path.cwd() / p).resolve()
+    if not p.exists():
+        sys.exit(f"[error] --prompt file not found: {p}")
+    return p
+
+
+def prompt_version_line(path: Path) -> str:
+    """First heading line of the brief — confirms which version a run used."""
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if re.match(r"^#{1,6}\s", line):
+            return line.strip("# ").strip()
+    return path.name
+
+
+def ensure_files(required: dict[str, Path]) -> None:
+    """Check only the files this mode actually ships — prompt-only/bare runs need no companions."""
+    missing = [str(p) for k, p in required.items() if not p.exists()]
     if missing:
         sys.exit(f"[error] missing challenge files: {missing}")
 
 
 def cmd_setup(args) -> None:
-    ensure_files()
+    brief = resolve_brief(getattr(args, "prompt", None))
+    prompt_only = bool(getattr(args, "prompt_only", False))
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     n = args.agents
     ts = now_iso()
+    # v22+ self-contained prompts need no companion files: --prompt-only ships the brief alone.
+    files = ({WS_BRIEF: brief} if prompt_only
+             else {WS_BRIEF: brief, WS_SPEC: SPEC, WS_SELFQA: SELFQA})
+    ensure_files(files)
     manifest = {
         "created_utc": ts,
         "budget_min": args.budget_min,
         "agents": {},
+        "delivery": "prompt-only" if prompt_only else "brief+spec+selfqa",
         "note": "Workspaces contain ONLY the challenge files; evaluation files are NOT shipped.",
     }
     for i in range(1, n + 1):
         wd = out / f"agent{i}"
         wd.mkdir(parents=True, exist_ok=True)
-        for name, src in CHALLENGE_FILES.items():
+        # Provisioning contract: after setup the workspace contains EXACTLY the shipped
+        # challenge files. A reused output dir is cleared first — leftovers from an
+        # earlier run (companions, old sources, assets) would contaminate the round and
+        # contradict the manifest. The previous run's manifest kept its build hashes.
+        stale = sorted(p.name for p in wd.iterdir())
+        for p in wd.iterdir():
+            if p.is_dir() and not p.is_symlink():
+                shutil.rmtree(p)
+            else:
+                p.unlink()
+        if stale:
+            print(f"[setup] cleared {len(stale)} stale entr{'y' if len(stale) == 1 else 'ies'} from {wd}")
+        for name, src in files.items():
             shutil.copyfile(src, wd / name)
-        manifest["agents"][f"agent{i}"] = {
+        entry = {
             "workspace": str(wd),
-            "brief_sha256": sha256_of(BRIEF),
-            "spec_sha256": sha256_of(SPEC),
-            "selfqa_sha256": sha256_of(SELFQA),
+            "files": sorted(files),
+            "brief_sha256": sha256_of(brief),
+            "brief_version": prompt_version_line(brief),
             "start_utc": ts,
             "end_utc": None,
             "build_hash": None,
         }
+        if not prompt_only:
+            entry["spec_sha256"] = sha256_of(SPEC)
+            entry["selfqa_sha256"] = sha256_of(SELFQA)
+        manifest["agents"][f"agent{i}"] = entry
     write_manifest(out, manifest)
-    print(f"[setup] created {n} isolated workspaces under {out}")
+    print(f"[setup] created {n} isolated workspaces under {out} ({manifest['delivery']})")
+    print(f"[setup] brief: {brief} — {prompt_version_line(brief)}")
     print(f"[setup] all agents received the SAME brief (sha256={manifest['agents']['agent1']['brief_sha256'][:12]}…)")
+    if prompt_only:
+        print("[setup] prompt-only: nothing else is shipped — the brief is the whole challenge (v22 contract).")
     print("[setup] hand each workspace to its agent now. Launch agents in parallel for an equal time budget.")
 
 
 def cmd_single_prompt(args) -> None:
     """Emit ONE paste-ready prompt (full brief inline) for agents with NO repo access."""
-    ensure_files()
+    brief = resolve_brief(getattr(args, "prompt", None))
+    # Both modes build the deliverable from the brief alone — no companion files required.
+    ensure_files({WS_BRIEF: brief})
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
-    brief_text = BRIEF.read_text(encoding="utf-8")
-    spec_note = ""
-    # The brief already embeds the full spec, so the single prompt is self-contained.
-    prompt = (
-        "# NEXUS AGENT ARENA — AGENT CHALLENGE (single self-contained prompt)\n"
-        "# Deliver this entire message to the agent. It is fully self-contained; the agent\n"
-        "# does not need any repository access. (Identical content is also shipped to agents\n"
-        "# that DO have repo access, as BATTLE_PROMPT.md.)\n\n"
-        + brief_text
-        + "\n\n# -- end of challenge brief --\n"
-    )
-    dest = out / "SINGLE_PROMPT.md"
-    dest.write_text(prompt, encoding="utf-8")
-    print(f"[single-prompt] wrote {dest} ({len(prompt)} chars). Send its full contents to the agent.")
+    print(f"[single-prompt] source: {brief} — {prompt_version_line(brief)}")
+    if getattr(args, "bare", False):
+        # Exact bytes: copy the file as-is. No text decoding, so no newline translation
+        # (a CRLF-saved brief stays CRLF) and no wrapper (v22 contract).
+        dest = out / "PROMPT.md"
+        shutil.copyfile(brief, dest)
+        data = dest.read_bytes()
+        digest = hashlib.sha256(data).hexdigest()
+        print(f"[single-prompt] wrote {dest} ({len(data)} bytes) — paste these exact bytes.")
+        print(f"[single-prompt] sha256: {digest}  (short: {digest[:16]}…)")
+        print("[single-prompt] nothing else is needed: no spec file, no self-QA file, no companion guide.")
+    else:
+        brief_text = brief.read_text(encoding="utf-8")
+        # Legacy wrapper for prompt+spec packages (v20 and earlier).
+        prompt = (
+            "# NEXUS AGENT ARENA — AGENT CHALLENGE (single self-contained prompt)\n"
+            "# Deliver this entire message to the agent. It is fully self-contained; the agent\n"
+            "# does not need any repository access. (Identical content is also shipped to agents\n"
+            "# that DO have repo access, as BATTLE_PROMPT.md.)\n\n"
+            + brief_text
+            + "\n\n# -- end of challenge brief --\n"
+        )
+        dest = out / "SINGLE_PROMPT.md"
+        dest.write_text(prompt, encoding="utf-8")
+        print(f"[single-prompt] wrote {dest} ({len(prompt)} chars). Send its full contents to the agent.")
+        print("[single-prompt] (v22-style runs: add --bare to emit the prompt bytes alone, no wrapper.)")
 
 
 def _parse_ship_count(raw: str | None) -> dict[str, int]:
@@ -384,10 +454,21 @@ def main() -> None:
     p.add_argument("--out", required=True)
     p.add_argument("--agents", type=int, default=2)
     p.add_argument("--budget-min", type=int, default=60)
+    p.add_argument(
+        "--prompt-only",
+        action="store_true",
+        help="ship ONLY the prompt into each workspace (v22+ self-contained prompts; no spec/self-QA files)",
+    )
+    p.add_argument("--prompt", default=None,
+                   help="path to the brief to use (e.g. challenge/BATTLE_PROMPT_v22.md); default = live BATTLE_PROMPT.md")
     p.set_defaults(func=cmd_setup)
 
     p = sub.add_parser("single-prompt", help="emit a single paste-ready prompt for no-repo agents")
     p.add_argument("--out", required=True)
+    p.add_argument("--bare", action="store_true",
+                   help="emit the prompt bytes exactly as-is (no wrapper) — the v22 one-file delivery")
+    p.add_argument("--prompt", default=None,
+                   help="path to the brief to use (e.g. challenge/BATTLE_PROMPT_v22.md); default = live BATTLE_PROMPT.md")
     p.set_defaults(func=cmd_single_prompt)
 
     p = sub.add_parser("finalize", help="record end time + build hashes + one-shot/iterated track routing")

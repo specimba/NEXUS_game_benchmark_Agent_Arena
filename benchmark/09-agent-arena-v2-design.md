@@ -4,7 +4,7 @@
 benchmark's current single-track open arena and the five-track architecture implied by
 the 2026 game-agent literature. Paper grounding: `benchmark/literature/` (GameXpert,
 GameEngineBench, RLHEV, Harness-of-Harness) and the review in
-`ARENAaiAGENTandGAMEbenchNEXUSfreecreationlogs13gptADVISORY.txt`.
+`../logs/game-log-13-gpt-advisory.txt`.
 
 Adopted-now items from this design (machine contract, evidence v2, pairwise split,
 S4a/S4b) are already implemented and enforced by `benchmark/ops/consistency_check.py` +
