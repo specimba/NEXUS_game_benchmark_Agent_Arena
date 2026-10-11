@@ -23,6 +23,7 @@ change.
 | `game-log-15.txt` | R016 | v20 first field test — 11 sessions, 6 operator comments |
 | `game-log-16.txt` | R017 | v20 second field test (Option A/B format), 6 operator comments |
 | `game-log-17.txt` | R018 | v21 single-prompt field test — 22 sessions / 11 battles / 11 operator comments (12,205 lines). Sources [`round-018-v21-field-analysis.md`](../battles/round-018-v21-field-analysis.md), [`log17-approach-distillation.md`](../battles/log17-approach-distillation.md), [`log17-v22-revision-notes.md`](../battles/log17-v22-revision-notes.md) |
+| `game-log-18.txt` | R019 | v22 single-prompt field test — ~30 sessions / 15 battles / 15 operator comments (27,809 lines, 1.1 MB). Imported 2026-10-12 from the operator's upload (`ARENAaiAGENTandGAMEbenchNEXUSfreecreationlogs18.txt`, first committed to `master` then moved here). Pasted prompt matches `BATTLE_PROMPT_v22.md` except one esbuild line (see analysis §3.1). Source: [`round-019-field-analysis.md`](../battles/round-019-field-analysis.md); revision proposals (held): [`log18-v23-revision-notes.md`](../battles/log18-v23-revision-notes.md) |
 
 Related:
 
