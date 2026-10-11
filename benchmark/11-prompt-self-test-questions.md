@@ -2,7 +2,7 @@
 
 **Purpose.** Before the next battle, answer these questions about our own battle prompt and strategy. Each one has three parts: why it matters (the evidence), what would settle it (the test), and my current answer from the evidence so far. Where the answer is "not known," the question is a pre-test: run it first, then decide.
 
-**Marking.** `[core]` must be answered before the next battle. `[optional]` improves the next prompt but does not block it.
+**Marking.** `[core]` must be answered before the next battle (15 questions). `[optional]` improves the next prompt but does not block it (8 questions).
 
 **Evidence base.** Round 019 field log (de-identified analysis in `battles/round-019-field-analysis.md`); the research note `benchmark/10-field-research-2026-10.md`; the v23 proposals in `battles/log18-v23-revision-notes.md`.
 
@@ -164,3 +164,50 @@
 | G. Operator | G1, G2 | 0 | 2 |
 
 **Reading:** the research side is in good shape. The prompt and the measurement side are not yet. Most "no" answers have a proposed fix in the v23 notes, which is held until the operator decides.
+
+
+---
+
+## H. Operator answers and read-through corrections (2026-10-12)
+
+Asked directly to the operator in conversation. Answers are recorded as given; where the v22 text disagrees with an answer, the disagreement is stated here and the prompt check decides the fact.
+
+| Q | Operator answer | v22 text check | Status |
+|---|---|---|---|
+| A1 first-screen verb | "Yes, the brief requires it" | Not required in those words. v22 asks for a one-sentence player goal (Q2) and says the first minute must be legible within ~60 s. No on-screen verb and goal, no word limit. | **Partly. Disagrees with the operator's answer; the prompt is the source.** Fix: v23 §2.3 |
+| B1 scope overreach | "No, the ship-complete rule balances it" | Ship-complete rule exists. | **Unknown.** My earlier "probably yes" rested on fix-loop stalls, not on scope evidence. Withdrawn. |
+| B2 two build failures | "Revert to last green build" | **No fallback rule in v22.** No "revert", "last green", or retry cap. | **Not in the prompt.** The operator's answer is the behaviour we want; v23 §2.1 proposes it. |
+| C1 probe scope | "Both" (rules and behaviour) | v22 asks for asserts that a naive player's run reaches the first goal, but does not require one check per declared behaviour. | **Partly.** Fix: v23 §2.2. |
+| C2 who writes the probe | "There are no revisions in battles; they are one-shot. Good creations could get revisions or continuous development, which is not feasible in Arena battle mode." | v22 has `TRACK: iterated (N passes)` as an option, so some iteration is allowed but not defined. | **Operator constraint, recorded.** This limits what the research can transfer; see H2. |
+| D1 effort recorded | "Yes" | The ENV line records class, what was attempted, and what executed. **It does not record effort or reasoning setting.** | **No, in the brief.** If the operator records it in session metadata, that is outside the README. Operator to confirm. |
+
+### H1. Corrections to the earlier answers
+
+- **A1** changes from "no" to "partly". The brief has a legibility rule, but not an on-screen verb and goal.
+- **B1** changes from "probably yes" to "unknown". The evidence was weak.
+- **D1** stays "no" for the brief. The operator's "yes" may refer to recording outside the brief.
+- **B2** stays "no rule" in the brief. The operator's answer is the behaviour to write in.
+- **Count:** 23 questions, 15 core, 8 optional.
+
+### H2. What the full reading changes
+
+I read the abstracts of six papers and the full introductions of RSIGame and Recursive Game Creator.
+
+- **RSIGame (2609.39045):** the local loop explores the running game, diagnoses and ranks issues, and revises against an evolving checklist. The global loop keeps the best checkpoint and detects regression. Its reported gains come from repeated rounds under matched budgets. *For us:* the best-checkpoint rule (fallback) transfers to one session. The multi-round gains do not, unless `TRACK: iterated` is used.
+- **Recursive Game Creator (2610.08621):** a separate Player writes reusable policies over exposed state. A Reviewer compares versions and keeps the better one. Three refinement rounds raised a GameCraft-Bench score from 72.70 to 77.89, and the GameASG-Bench strict success rate from 9.47% to 53.2% (25 of 47). Its code is not yet released. *For us:* the Player-policy idea (scripted play over state, not GUI clicks) transfers to the probe. The A/B revision loop needs more than one round.
+- **GameASG-Bench (2609.21293):** declares the test interface before generation. Across nine agent stacks, the highest mean L2 pass rate is 93.2% but the highest strict success is 55.3% (26 of 47). For one model, full tool access and larger turn budgets raise strict success. Strict success is **not monotonic in reasoning effort.** *For us:* supports D1 (record effort, because it changes the result in both directions) and C2 (fix the interface before the build).
+- **WorldBench (2610.10622):** the VLM-snapshot judge and the code judge disagree on 32% of required items. In a removal test, code-only judging credits 4 of 5 removed features; the probe that checks what runs cut kept points on removed features from 5.44 to 3.55 (of 7.11). *For us:* supports C1 and C3. Code presence is not evidence.
+- **A2Z GameSpec-Bench (2609.39564):** the contract stays fixed across agents and rounds; test policies are generated against it; requirement-specific feedback gave +10.9% fidelity over self-revision after two rounds. *For us:* supports the targeted-revision rule (v23 §2.9). Also supports naming the requirement that failed.
+- **GameDevBench (2602.11103):** the visual-feedback gain (41.1% to 52.0%) was measured for GPT-5.4, not for any newer model. Gameplay tasks scored 51.4% and 2D graphics 33.0%. *For us:* the screenshot step (v23 §2.6) is optional and its benefit is for one model only.
+
+### H3. Constraint on the research (new)
+
+Battles are one-shot, and the operator says revision loops are not feasible in Arena battle mode. So:
+
+1. The multi-round gains in RSIGame and RGC **do not transfer as measured.** Do not claim them.
+2. What transfers: the best-checkpoint fallback within one session (v23 §2.1), play-based probes written against a fixed behaviour list (v23 §2.2), and targeted self-checks (v23 §2.9).
+3. The `TRACK: iterated (N passes)` option conflicts with "one-shot". Either remove the option from the v23 draft or define it. **Operator decision.**
+
+### H4. Still open for the operator (not answered)
+
+Core questions not yet answered: A2, C3, D2, D3, E1, F1, F2, G1, G2. The operator skipped the second batch (A2, C3, D2, D3, E1, F2). These remain open until the operator answers.
