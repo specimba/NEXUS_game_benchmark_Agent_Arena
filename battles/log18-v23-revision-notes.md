@@ -2,8 +2,8 @@
 
 **Source:** round 019 (v22 single-prompt field test), analysed in `round-019-field-analysis.md` (no model names, no battle mapping).
 **Research:** `benchmark/10-field-research-2026-10.md` (papers from May to October 2026; model facts; showcases).
-**Products:** this file only. No prompt is changed here. `challenge/BATTLE_PROMPT.md` stays v17; `challenge/BATTLE_PROMPT_v22.md` stays as the repo copy.
-**Promotion** needs the operator's word.
+**Products:** `challenge/BATTLE_PROMPT_v23.md` (draft, not live; made from v22 with the decisions in §8). `challenge/BATTLE_PROMPT.md` stays v17.
+**Promotion** needs the operator's word. Status: v23 draft written; not promoted.
 
 ---
 
@@ -153,3 +153,42 @@ A two-arm fixed-pool probe, same as the R016 plan:
 3. **Promotion.** Keep v17 live, promote v22 (with or without the field wording), or promote v23 after the A/B.
 4. **Esbuild wording.** Adopt the field wording (§4) or revert.
 5. **Verb check (§2.5).** Accept as a held A/B item, or drop it and keep only the README rule.
+
+
+---
+
+## 8. Operator decisions and the v23 draft (2026-10-12)
+
+| Item | Operator decision |
+|---|---|
+| A2 (brief says what finishes) | Answer given in the operator's words: do not limit the agent's vision or creativity; long answers are fine. Applied: no word caps in v23; the first-screen rule asks for the verb and goal "in the words the game needs". |
+| C3 (executed probe enough?) | Coverage matters more than execution. Applied: declared behaviours, and the README states how many the probe covers. |
+| E1 (minimum evidence of "closed") | Not defined by the operator; left as a per-case judgement. v23 keeps the v22 run list. |
+| F2 (newest models) | Keep the brief model-neutral; record effort in the ENV line. Applied: no model clauses. Effort is recorded by the operator's battle record, not asked of the agent. |
+| F1 (papers that change a rule) | All of them change a rule or a measurement. Applied: fallback, declared behaviours with play checks, targeted revision, library pinning. |
+| G1 (operator view) | Both: a one-page summary per round, then the full analysis. |
+| G2 (sharing) | Check each file for battle-to-model links before pushing. |
+| D3 (judging blind to model) | Not applicable: the operator judges alone. |
+| TRACK line | Remove the iterated track; battles are one-shot. Applied: `TRACK: strict-one-shot` only. |
+| Raw log `logs/game-log-18.txt` | Keep as uploaded. It stays in `logs/` unedited. |
+| D2 (byte-identical prompts) | Not asked. Known: the round-019 paste differs from the repo in one esbuild line; the repo wording is kept in v23. |
+
+### v23 changes against v22
+
+1. Title marked as draft; `TRACK: strict-one-shot` only (no iterated track).
+2. Length is not a constraint (the operator's A2 answer).
+3. New first-screen rule: verb and goal on screen, no word limit.
+4. Declared behaviours (3–6) and play checks: a decision changes the outcome, the first control gives a visible change, a second run differs. Coverage count in the README.
+5. Library pinning and known-breakage note.
+6. Optional screenshot step with a fallback.
+7. Fallback rule (rule 9): after two failed builds, return to the last green build and cut the failing feature.
+8. Targeted revision (rule 10): name the failing requirement and the fix.
+9. Verb check and the README-only-for-judges rule for rejected families; no banned list added.
+10. Removed "by different models" from the families note (no model references in the prompt).
+
+### Still held
+
+- The esbuild wording (D2) decision.
+- The per-round dash-rating backup (send ratings when ready).
+- Promotion: v23 is a draft. Live remains v17; v22 is not promoted.
+- The v23 change to the fallback rule has not been field-tested. It needs a fixed-pool A/B (§6) before promotion.

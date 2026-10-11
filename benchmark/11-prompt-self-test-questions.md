@@ -211,3 +211,22 @@ Battles are one-shot, and the operator says revision loops are not feasible in A
 ### H4. Still open for the operator (not answered)
 
 Core questions not yet answered: A2, C3, D2, D3, E1, F1, F2, G1, G2. The operator skipped the second batch (A2, C3, D2, D3, E1, F2). These remain open until the operator answers.
+
+
+### H5. Second batch and decisions (2026-10-12, later)
+
+| Q | Answer | Note |
+|---|---|---|
+| A2 | Operator: do not limit the agent's vision or creativity; long answers are fine | Recorded as given. Applied in v23 (no word caps). |
+| C3 | Coverage matters more than execution | Applied in v23. |
+| E1 | Not defined; decide per case | Open. |
+| F2 | Keep the brief model-neutral; record effort in ENV | Applied. |
+| F1 | All papers change a rule or a measurement | Applied (see notes §8). |
+| G1 | Both: summary page, then full analysis | Adopt. |
+| G2 | Check each file for battle-to-model links before pushing | Adopt. |
+| D3 | Not applicable: operator judges alone | Recorded. |
+| D2 | Not asked; one esbuild line differs | Open. |
+| TRACK | Remove iterated track | Applied in v23. |
+| Raw log | Keep as uploaded | Applied. |
+
+Still open: D2 and E1.
